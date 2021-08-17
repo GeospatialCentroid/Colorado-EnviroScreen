@@ -24,7 +24,7 @@
 | Misc. flag variables          | Oil and gas community                                                     | 0         | 0                |   |
 | Misc. flag variables          | Coal power plant community                                                | 0         | 0                |   |
 | Misc. flag variables          | Urban/Rural                                                               | 0         | 0                |   |
-| Climate                       | Wildfire risk                                                             |           | 0 |  |
+| Climate                       | Wildfire risk                                                             |           | 0 | test |
 | Climate                       | Flood plains                                                              | 0         |0  |  |
 | Climate                       | Projected heat days |0  |0  |  |
 | Socioeconomic factors         | Percent disability |0  |0  |  |
