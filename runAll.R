@@ -7,28 +7,30 @@
 # load required libraries 
 pacman::p_load(tigris, dplyr, sf)
 
-# set base directory 
-baseDir <- "F:/geoSpatialCentroid/coEnvrioScreen"
+# # set base directory 
+# baseDir <- "F:/geoSpatialCentroid/coEnvrioScreen"
   
 
 #source function 
 ### this prints the function elements, which I don't want. so creating a temp var then removing it. Maybe there is a verbose 
 ### setting to adjust within the source function? 
-temp1 <- list.files(path = paste0(baseDir,"/src/Colorado-EnviroScreen/dataProcessing/functions/"), full.names = TRUE,
-                        pattern = "*.R") %>%
-  lapply(source)
-rm(temp1)
+# temp1 <- list.files(path = paste0(baseDir,"/src/Colorado-EnviroScreen/dataProcessing/functions/"), full.names = TRUE,
+#                         pattern = "*.R") %>%
+#   lapply(source)
+# rm(temp1)
+
+list.files("utils/", full.names = TRUE) %>% lapply(source)
 
 
 ### download data 
-pullGeometryDatasets(fileFolder = paste0(baseDir,"/data"),
+pullGeometryDatasets(fileFolder = "data/",
                      pullNewData = FALSE)
 
 ### set processing level 
 # "censusBlockGroup", "censusTract", "county"
 processingLevel <- "county"
 # call in spatial object at give extent 
-spatialData <- setSpatialData(dataFolder = paste0(baseDir,"/data"),scale = processingLevel)
+spatialData <- setSpatialData(dataFolder = "data/",scale = processingLevel)
 
 
 ### call function that loops over all inputs data and processes the dataset. 
