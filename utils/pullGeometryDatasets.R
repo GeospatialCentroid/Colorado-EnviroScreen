@@ -12,9 +12,6 @@
 # points to specific file location 
 # reference function to call census API key 
 
-library(tigris)
-library(dplyr)
-
 pullGeometryDatasets <- function(fileFolder, pullNewData){
   ###
   # function that pull required spatial data to fileFolder location of interest
@@ -32,6 +29,8 @@ pullGeometryDatasets <- function(fileFolder, pullNewData){
   
   if(isTRUE(pullNewData)){
     overwrite <- TRUE
+  }else{
+    overwrite <- FALSE
   }
   ### State Data
   # test for existing file folder structure 
@@ -40,16 +39,20 @@ pullGeometryDatasets <- function(fileFolder, pullNewData){
   if(!dir.exists(path1)){
     dir.create(path1)
   }
-  cat("Downloading and saving state level spatial data")
-  # call all state data and filter to colorado 
-  states <- tigris::states() %>% 
-    dplyr::filter(STATEFP  == fips)
-  # write object as a geojson
-  sf::st_write(obj = states,
-               dsn = paste0(path1,"/colorado.geojson"),
-               driver = "GeoJSON", 
-               delete_layer = overwrite)
-  
+  print("Downloading and saving state level spatial data")
+  if(!file.exists(paste0(path1,"/colorado.geojson")) | overwrite == TRUE){
+    # call all state data and filter to colorado 
+    states <- tigris::states() %>% 
+      dplyr::filter(STATEFP  == fips)
+    # write object as a geojson
+    sf::st_write(obj = states,
+                 dsn = paste0(path1,"/colorado.geojson"),
+                 driver = "GeoJSON", 
+                 delete_layer = overwrite)
+  }else{
+        print("File exist, change pullNewData to TRUE to force Download")
+      }
+
   ### County Data 
   # test for existing file folder structure 
   path2 <- paste0(fileFolder, "/county")
@@ -58,15 +61,19 @@ pullGeometryDatasets <- function(fileFolder, pullNewData){
     dir.create(path2)
   }
   
-  cat("Downloading and saving county level spatial data")
-
-  # Counties within the state of Colorado 
-  counties <- tigris::counties(state = fips)
-  # write out spatial data
-  sf::st_write(obj = counties,
-               dsn = paste0(path2,"/coloradoCounties.geojson"),
-               drive = "GeoJSON",
-               delete_layer = overwrite)
+  print("Downloading and saving county level spatial data")
+  if(!file.exists(paste0(path2,"/coloradoCounties.geojson")) | overwrite == TRUE){
+      
+    # Counties within the state of Colorado 
+    counties <- tigris::counties(state = fips)
+    # write out spatial data
+    sf::st_write(obj = counties,
+                 dsn = paste0(path2,"/coloradoCounties.geojson"),
+                 drive = "GeoJSON",
+                 delete_layer = overwrite)
+  }else{
+    print("File exist, change pullNewData to TRUE to force Download")
+  }
   
   ### Census Tract
   # test for existing file folder structure 
@@ -77,15 +84,19 @@ pullGeometryDatasets <- function(fileFolder, pullNewData){
   }
   
   cat("Downloading and saving census tract level spatial data")
+  if(!file.exists(paste0(path3,"/coloradoCensusTracts.geojson")) | overwrite == TRUE){
+    # Census Tracts within the state of Colorado 
+    tracts <- tigris::tracts(state = fips)
+    # writing census tract data 
+    sf::st_write(obj = tracts,
+                 dsn = paste0(path3,"/coloradoCensusTracts.geojson"),
+                 drive = "GeoJSON",
+                 delete_layer = overwrite)
+  }else{
+    print("File exist, change pullNewData to TRUE to force Download")
+  }
   
-  
-  # Census Tracts within the state of Colorado 
-  tracts <- tigris::tracts(state = fips)
-  # writing census tract data 
-  sf::st_write(obj = tracts,
-               dsn = paste0(path3,"/coloradoCensusTracts.geojson"),
-               drive = "GeoJSON",
-               delete_layer = overwrite)
+
   
   ### Census Block Group 
   # test for existing file folder structure 
@@ -96,13 +107,18 @@ pullGeometryDatasets <- function(fileFolder, pullNewData){
   }
   
   cat("Downloading and saving census block group level spatial data")
-  
-  # census block groups within the state of Colorado 
-  blockGroups <- tigris::block_groups(state = fips)
-  sf::st_write(obj = blockGroups,
-               dsn = paste0(path4,"/coloradoCensusBlockGroups.geojson"),
-               drive = "GeoJSON",
-               delete_layer = overwrite)
+  if(!file.exists(paste0(path4,"/coloradoCensusBlockGroups.geojson")) | overwrite == TRUE){
+    # census block groups within the state of Colorado 
+    blockGroups <- tigris::block_groups(state = fips)
+    sf::st_write(obj = blockGroups,
+                 dsn = paste0(path4,"/coloradoCensusBlockGroups.geojson"),
+                 drive = "GeoJSON",
+                 delete_layer = overwrite)
+  }else{
+    print("File exist, change pullNewData to TRUE to force Download")
+    
+  }
+ 
   cat("All files have been downloaded.")
 }
 
