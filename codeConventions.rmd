@@ -1,0 +1,106 @@
+# Overview 
+
+This is largely a note sheet for the time being but will be developed to a more formal guiding document as needed. The goal is to track code conventions and provide an example 
+
+
+## notes
+using the '#!' within the code means there is a question to follow up on. These are ideas that should be evaluated and either made into a formal issue on the github, implimented on the spot, or drop. 
+```{r}
+#! consider wrapping all these functions into one. 
+```
+
+
+
+## naming 
+
+**camel case**
+use camel case for object names 
+```{r}
+objectOne <- "example"
+```
+
+**function names ** 
+function names should match the file name for that function 
+```{r}
+excelentFunction <- function(){
+  print("I'm excelent")
+}
+# file would be save as excelentFunction.R 
+```
+
+
+## pathing 
+
+
+**R project**
+We are using an r project ensure to 
+- save r project when closing R 
+- use relative paths from .rproj file 
+
+
+**following / ** 
+All relative paths should end as writen. If more is to be added to the path that "/" will be add when needed. 
+```{r}
+# first path 
+path1 <- "data"
+# second path 
+path2 <- past0(path1, "/county")
+
+```
+
+
+## processing functions 
+
+**inputs**
+
+try for two inputs and one output when possible
+- location to raw data 
+- geometry extent
+```{r}
+processHAPS(filePath = , geometry = )
+```
+function that utilize API calls will not require file paths and should only require geomenty extent 
+
+
+
+**outputs** 
+
+restrict output to dataframe with two columns, GEOID and values of interest: 
+- name the value of interest to represent the parameter 
+```{r}
+df <- processHAPS()
+
+#### examples output 
+#print(df)
+# GEOID | HAPS
+# 02931 | 0.0834
+# 02932 | 0.0432
+```
+
+This output will be joined to a dataframe that compiles all dataprocessing steps as the scripts runs though 
+
+```{r}
+# process haps
+df <- processHAPS()
+allData <- allData %>%
+  dplyr::left_join(df, by = "GEOID")
+# processing next dataset
+```
+
+The GEOID column is distinct among all our spatial extent objects which is great. 
+
+
+**inclusive outputs**
+
+Not allow geometries of interest are going to have values for specific features. 
+For example
+Now every census block group will be in proximity to a NPL site 
+
+Within the function drop all geometries that contain no data to return the most discreate object .
+
+As we are joining dataset to compile we that final results we do not need to have comphresive coverage of each element. 
+
+
+
+
+
