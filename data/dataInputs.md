@@ -12,9 +12,9 @@
 | Future climate hazards        | Wildfire (costs related to suppression and buildings)                     | 0         | 0                |         high    |
 | Future climate hazards        | Drought (costs related to agriculture, skiing, rafting)                   | 0         | 0                |         high    |
 | Future climate hazards        | Flood (costs associated with damage to buildings and infrastructure)      | 0         | 0                |         high    |
-| Sensitive populations         | Asthma hospitalization rate (CDPHE/CHA, 2013-2017)                        | 0         | 0                |         high    |
-| Sensitive populations         | Heart disease in adults (CDPHE/BRFSS 2014-2017)                           | 0         | 0                |         high    |
-| Sensitive populations         | Low weight birth rate (CDPHE - Vital Statistics, 2013-2017                | 0         | 0                |         high    |
+| Sensitive populations         | Asthma hospitalization rate (CDPHE/CHA, 2013-2017)                        | 1         | 0                |         high    |
+| Sensitive populations         | Heart disease in adults (CDPHE/BRFSS 2014-2017)                           | 1         | 0                |         high    |
+| Sensitive populations         | Low weight birth rate (CDPHE - Vital Statistics, 2013-2017                | 1         | 0                |         high    |
 | Sensitive populations         | Population under 5                                                        | 0         | 0                |         medium  |
 | Sensitive populations         | Population over 64                                                        | 0         | 0                |         medium  |
 | Socioeconomic characteristics | Percent people of color                                                   | 0         | 0                |         high    |
