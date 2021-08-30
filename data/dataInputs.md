@@ -1,7 +1,7 @@
 | Group                         | Data Indicator                                                            | Collected | Function Develop | Priority Level  |
 |-------------------------------|---------------------------------------------------------------------------|-----------|------------------|-----------------|
-| Environmental Exposures       | Ozone                                                                     | 0         | 0                |         high    |
-| Environmental Exposures       | PM2.5                                                                     | 0         | 0                |         high    |
+| Environmental Exposures       | Ozone                                                                     | 1         | 0                |         high    |
+| Environmental Exposures       | PM2.5                                                                     | 1         | 0                |         high    |
 | Environmental Exposures       | Pre-1960 housing (lead risk)                                              | 0         | 0                |         high    |
 | Environmental Exposures       | Traffic proximity and volume (DOT 2017)                                   | 0         | 0                |         high    |
 | Environmental Exposures       | Diesel PM                                                                 | 0         | 0                |         high    |
@@ -9,9 +9,9 @@
 | Environmental Effects         | Proximity to Risk Management Plan (RMP) sites                             | 0         | 0                |         high    |
 | Environmental Effects         | Wastewater Discharge Indicator (Stream Proximity and Toxic Concentration) | 0         | 0                |         high    |
 | Environmental Effects         | Proximity to Hazardous Waste Facilities                                   | 0         | 0                |         high    |
-| Future climate hazards        | Wildfire (costs related to suppression and buildings)                     | 0         | 0                |         high    |
-| Future climate hazards        | Drought (costs related to agriculture, skiing, rafting)                   | 0         | 0                |         high    |
-| Future climate hazards        | Flood (costs associated with damage to buildings and infrastructure)      | 0         | 0                |         high    |
+| Future climate hazards        | Wildfire (costs related to suppression and buildings)                     | 1         | 0                |         high    |
+| Future climate hazards        | Drought (costs related to agriculture, skiing, rafting)                   | 1         | 0                |         high    |
+| Future climate hazards        | Flood (costs associated with damage to buildings and infrastructure)      | 1         | 0                |         high    |
 | Sensitive populations         | Asthma hospitalization rate (CDPHE/CHA, 2013-2017)                        | 1         | 0                |         high    |
 | Sensitive populations         | Heart disease in adults (CDPHE/BRFSS 2014-2017)                           | 1         | 0                |         high    |
 | Sensitive populations         | Low weight birth rate (CDPHE - Vital Statistics, 2013-2017                | 1         | 0                |         high    |
