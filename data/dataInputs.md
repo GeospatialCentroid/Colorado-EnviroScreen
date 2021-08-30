@@ -41,9 +41,9 @@
 | Environmental Effect          | Underground Injection Control (UIC) wells |0  |0  |  low |
 | Environmental Effect          | Solid Waste facilities | 0 | 0 |  medium |
 | Environmental Exposures       | Other remediation sites (non-Superfund) |0  |0  | medium |
-| Environmental Exposures       | Tree cover (alternate indicators: vegetation?, heat surface data?) | 0 | 0 | medium  |
+| Environmental Exposures       | Tree cover (alternate indicators: vegetation?, heat surface data?) | 1 | 0 | medium  |
 | Sensitive Populations         | Housing Cost-Burdened Communities |0  |0  | high |
-| Climate                       | Percent impervious surface | 0 | 0 | medium  |
+| Climate                       | Percent impervious surface | 1 | 0 | medium  |
 | Climate                       | Projected precipitation |0  |0  | low |
 | Environmental Exposures       | Permit violations Air and water violations | 0 | 0 | low  |
 | Mining and smelter locations  | Mining and smelter locations (historical, current) | 0 | 0 | high  |
