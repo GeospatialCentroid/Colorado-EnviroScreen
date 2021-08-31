@@ -8,10 +8,27 @@ census_api_key("0ab15d4d7d8a87694979e5d5667502b365ae96f9")
 
 
 #'geometry' is one of "block group", "tract", or "county"
-getACS <- function(geometry){
+getACS <- function(processingLevel, year){
+    require(tidyr, dplyr, tidycensus)
   
-    acs <- get_acs(
-      geography = geometry,
+  getCensusAPIKey()
+  
+  # set geography to correct term based on relation to processingLevel object
+  if(processingLevel == "censusBlockGroup"){
+    geography <- "block group"
+  }
+  
+  if(processingLevel == "censusTract"){
+    geography <- "tract"
+  }
+  
+  if(processingLevel == "county"){
+    geography <- "county"
+  }
+  
+  # pull acs data  
+  acs <- get_acs(
+      geography = geography,
       variables =
         
         c(
@@ -43,8 +60,7 @@ getACS <- function(geometry){
         ),
       
       state = "08",
-      year = 2019,
-      geometry = TRUE
+      year = year
     )
   
         
@@ -53,11 +69,11 @@ getACS <- function(geometry){
   # number (i.e., 0 people of color)
    
      
-    acs %>% spread(key = variable, value = estimate) %>%
-      group_by(GEOID) %>%
-      summarize(across(contains("_"), ~ sum(.x, na.rm = TRUE))) %>%
-      group_by(GEOID) %>% # not sure why.. but had to group_by a second time to get correct calculations
-      mutate(
+    acs %>% tidyr::spread(key = variable, value = estimate) %>%
+      dplyr::group_by(GEOID) %>%
+      dplyr::summarize(across(contains("_"), ~ sum(.x, na.rm = TRUE))) %>%
+      dplyr::group_by(GEOID) %>% # not sure why.. but had to group_by a second time to get correct calculations
+      dplyr::mutate(
         age_under5 = sum(B01001_003, B01001_027),
         age_over64 = sum(B01001_020, B01001_021),
         percent_minority = ifelse(B03002_001 == 0, NA, (B03002_001 - B03002_003) /
@@ -91,7 +107,7 @@ getACS <- function(geometry){
           ) / B15002_001
         )
       ) %>% 
-      select(GEOID, age_under5, age_over64, percent_minority, percent_lowincome,
+      dplyr::select(GEOID, age_under5, age_over64, percent_minority, percent_lowincome,
              percent_lingiso, percent_lths)
     
 }
