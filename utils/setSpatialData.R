@@ -11,7 +11,7 @@ setSpatialData <- function(dataFolder, scale){
   # scale: one of three options "censusBlockGroup", "censusTract", "county"
   ### 
   
-  if(scale == "censusBlockGroup"){
+    if(scale == "censusBlockGroup"){
     data <- sf::st_read(paste0(dataFolder,"/censusBlockGroup/coloradoCensusBlockGroups.geojson"))
   }
   if(scale == "censusTract"){

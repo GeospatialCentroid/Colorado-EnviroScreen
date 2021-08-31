@@ -101,6 +101,11 @@ Within the function drop all geometries that contain no data to return the most 
 As we are joining dataset to compile we that final results we do not need to have comphresive coverage of each element. 
 
 
+## Projects 
+Used NAD83 and maintain unproject lat long coordinate whenever possible 
+```{r}
+NAD83 <- crs=4269
+```
 
 
 
