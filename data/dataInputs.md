@@ -15,12 +15,12 @@
 | Sensitive populations         | Asthma hospitalization rate (CDPHE/CHA, 2013-2017)                        | 1         | 0                |         high    |
 | Sensitive populations         | Heart disease in adults (CDPHE/BRFSS 2014-2017)                           | 1         | 0                |         high    |
 | Sensitive populations         | Low weight birth rate (CDPHE - Vital Statistics, 2013-2017                | 1         | 0                |         high    |
-| Sensitive populations         | Population under 5                                                        | 0         | 0                |         medium  |
-| Sensitive populations         | Population over 64                                                        | 0         | 0                |         medium  |
-| Socioeconomic characteristics | Percent people of color                                                   | 0         | 0                |         high    |
-| Socioeconomic characteristics | Percent low income                                                        | 0         | 0                |         high    |
-| Socioeconomic characteristics | Percent linguistic isolation                                              | 0         | 0                |         high    |
-| Socioeconomic characteristics | Percent less than high school education                                   | 0         | 0                |         high    |
+| Sensitive populations         | Population under 5                                                        | 0         | 1                |         medium  |
+| Sensitive populations         | Population over 64                                                        | 0         | 1                |         medium  |
+| Socioeconomic characteristics | Percent people of color                                                   | 0         | 1                |         high    |
+| Socioeconomic characteristics | Percent low income                                                        | 0         | 1                |         high    |
+| Socioeconomic characteristics | Percent linguistic isolation                                              | 0         | 1                |         high    |
+| Socioeconomic characteristics | Percent less than high school education                                   | 0         | 1                |         high    |
 | Misc. flag variables          | Oil and gas community                                                     | 0         | 0                |         high    |
 | Misc. flag variables          | Coal power plant community                                                | 0         | 0                |         high    |
 | Misc. flag variables          | Urban/Rural                                                               | 0         | 0                |         medium  |
