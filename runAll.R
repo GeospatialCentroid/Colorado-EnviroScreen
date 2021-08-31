@@ -5,7 +5,7 @@
 ### 
 
 # load required libraries 
-pacman::p_load(tigris, dplyr, sf)
+pacman::p_load(tigris, dplyr, sf, tidycensus, tidyr)
 
 # source functions; this is verbose, so temp object is created then removed 
 ### if we can find a way to pass parameters to the source function within the lapply we can get around this. 
@@ -64,6 +64,10 @@ cliImapcts <-  as.data.frame(geometry) %>%
 ####
 # Sensitive Populations
 ####
+# gather and derive the social demographic elements from 
+# use character to describe the spatial scale at which data is gathered.
+#  
+acsData <- getACS(processingLevel = processingLevel, year = 2019)
 
 ####
 # Socioeconomic Factors
