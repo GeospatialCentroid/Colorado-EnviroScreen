@@ -1,67 +1,64 @@
 # get EJScreen ACS census variables
 
-library(tidycensus)
-library(tidyverse)
-
-
-census_api_key("0ab15d4d7d8a87694979e5d5667502b365ae96f9")
-
-
 #'geometry' is one of "block group", "tract", or "county"
-getACS <- function(processingLevel, year){
-    require(tidyr, dplyr, tidycensus)
+
+getACS <- function(processingLevel, year ){
+  ###
+  # Workflow pulled from the EPA ejscreen methodology 
+  #geometry = character descirbing the spatial extent 
+  #year = numeric value define the year to pull data from 
+  ###
+  require(tidycensus, dplyr, tidyr)
   
+  # call census api key 
   getCensusAPIKey()
+  #### potential for some conditional testing here, but this is getting 
+  #### more complicated then it really needs to be... so something to 
+  #### come back too. 
   
-  # set geography to correct term based on relation to processingLevel object
+  # change the geometry character to match requirements in tidy census
   if(processingLevel == "censusBlockGroup"){
-    geography <- "block group"
+    processingLevel <- "block group"
   }
-  
-  if(processingLevel == "censusTract"){
-    geography <- "tract"
-  }
-  
   if(processingLevel == "county"){
-    geography <- "county"
+    processingLevel <- "county"
+  }
+  if(processingLevel == "censusTract"){
+    processingLevel <- "tract"
   }
   
-  # pull acs data  
-  acs <- get_acs(
-      geography = geography,
-      variables =
-        
-        c(
-          # under 5
-          "B01001_003",
-          "B01001_027",
-          # over 64
-          paste0("B01001_0", 20:25),
-          paste0("B01001_0", 44:49),
-          #percent people of color
-          "B03002_001",
-          "B03002_003",
-          #Percent low income
-          "C17002_001",
-          "C17002_008",
-          #Percent linguistic isolation
-          "C16002_001",
-          "C16002_004",
-          "C16002_007",
-          "C16002_010",
-          "C16002_013",
-          
-          #Percent less than high school education
-          "B15002_001",
-          paste0("B15002_00", 3:9),
-          "B15002_010",
-          paste0("B15002_0", 20:27)
-          
-        ),
-      
-      state = "08",
-      year = year
-    )
+  # pull ACS data 
+  acs <- tidycensus::get_acs(
+    geography = processingLevel,
+    variables = c(
+        # under 5
+        "B01001_003",
+        "B01001_027",
+        # over 64
+        paste0("B01001_0", 20:25),
+        paste0("B01001_0", 44:49),
+        #percent people of color
+        "B03002_001",
+        "B03002_003",
+        #Percent low income
+        "C17002_001",
+        "C17002_008",
+        #Percent linguistic isolation
+        "C16002_001",
+        "C16002_004",
+        "C16002_007",
+        "C16002_010",
+        "C16002_013",
+        #Percent less than high school education
+        "B15002_001",
+        paste0("B15002_00", 3:9),
+        "B15002_010",
+        paste0("B15002_0", 20:27)
+      ),
+    state = "08",
+    year = year
+  )
+
   
         
   # NOTE, for those where total pop/known pop is '0' I change to NA. EJ Screen
@@ -70,6 +67,7 @@ getACS <- function(processingLevel, year){
    
      
     acs %>% tidyr::spread(key = variable, value = estimate) %>%
+
       dplyr::group_by(GEOID) %>%
       dplyr::summarize(across(contains("_"), ~ sum(.x, na.rm = TRUE))) %>%
       dplyr::group_by(GEOID) %>% # not sure why.. but had to group_by a second time to get correct calculations
