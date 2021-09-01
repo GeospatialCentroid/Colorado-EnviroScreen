@@ -1,6 +1,7 @@
 # get EJScreen ACS census variables
 
 #'geometry' is one of "block group", "tract", or "county"
+
 getACS <- function(processingLevel, year ){
   ###
   # Workflow pulled from the EPA ejscreen methodology 
@@ -10,7 +11,7 @@ getACS <- function(processingLevel, year ){
   require(tidycensus, dplyr, tidyr)
   
   # call census api key 
-  val <- getCensusAPIKey()
+  getCensusAPIKey()
   #### potential for some conditional testing here, but this is getting 
   #### more complicated then it really needs to be... so something to 
   #### come back too. 
@@ -57,14 +58,16 @@ getACS <- function(processingLevel, year ){
     state = "08",
     year = year
   )
+
   
         
   # NOTE, for those where total pop/known pop is '0' I change to NA. EJ Screen
   # would set these to '0' but in some cases '0' was actually a meaningful 
   # number (i.e., 0 people of color)
    
-  # develop metrics on the aggrated dataset  
-    t1 <- acs %>% tidyr::spread(key = variable, value = estimate) %>%
+     
+    acs %>% tidyr::spread(key = variable, value = estimate) %>%
+
       dplyr::group_by(GEOID) %>%
       dplyr::summarize(across(contains("_"), ~ sum(.x, na.rm = TRUE))) %>%
       dplyr::group_by(GEOID) %>% # not sure why.. but had to group_by a second time to get correct calculations

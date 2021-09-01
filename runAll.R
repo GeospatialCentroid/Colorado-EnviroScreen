@@ -73,6 +73,10 @@ acsData <- getACS(processingLevel = processingLevel, year = 2019)
 # Socioeconomic Factors
 ####
 
+acsData <- getACS(processingLevel = processingLevel,
+                  year = 2019)
+
+
 
 ####
 # Pollution and Climate Burden
@@ -86,7 +90,7 @@ pcb <- dplyr::bind_cols(exposures, envEffect, cliImapcts)
 
 ####
 # Environmental Health Score 
-####
+###
 
 
 
