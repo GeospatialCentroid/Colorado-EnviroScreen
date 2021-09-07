@@ -30,7 +30,7 @@
 | Socioeconomic factors         | Percent disability |0  |0  | high |
 | Environmental Exposures       | Air Toxics Emissions (Hazardous Air Pollutants or "HAPs") |0  |0  | high |
 | Environmental Exposures       | Other Criteria Pollutants (SOx, NOx, CO, PB, PM10) |0  |0  | high |
-| Environmental Exposures       | Proximity to oil and gas facilities (Oil & Gas Locations; Centralized E&P Waste Management Facilities; Pipelines (flowlines & gathering lines); Open remediation projects; pits; maybe wells not associated w/O&G locations); consider also using COGCC water well data: https://cogcc.state.co.us/documents/data/downloads/environmental/WaterWellDownload.html  |0  |0  | high |
+| Environmental Exposures       | Proximity to oil and gas facilities (Oil & Gas Locations; Centralized E&P Waste Management Facilities; Pipelines (flowlines & gathering lines); Open remediation projects; pits; maybe wells not associated w/O&G locations); consider also using COGCC water well data: https://cogcc.state.co.us/documents/data/downloads/environmental/WaterWellDownload.html  |1  |0  | high |
 | Environmental Exposures       | Impaired surface waters |0  |0  | medium |
 | Environmental Exposures       | Drinking Water quality Public water system sample results |0  |0  | high |
 | Environmental Exposures       | PFAS risk |0  |0  | low |
