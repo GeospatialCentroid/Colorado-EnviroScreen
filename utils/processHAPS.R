@@ -5,8 +5,8 @@
 ###
 
 # ### testing 
-# filePath <- "data/APENs 8_24_2021.csv"
-# geometry <- sf::st_read("F:/geoSpatialCentroid/coEnvrioScreen/data/censusBlockGroup/coloradoCensusBlockGroups.geojson")
+filePath <- "data/haps/APENs 8_24_2021.csv"
+geometry <- sf::st_read("F:/geoSpatialCentroid/coEnvrioScreen/data/censusBlockGroup/coloradoCensusBlockGroups.geojson")
 # ###
 
 processHAPS <- function(filePath, geometry){
@@ -15,7 +15,7 @@ processHAPS <- function(filePath, geometry){
   # geometry : sf object of the census block group, census track, or county
   # return : a dataframe with geoid and haps score 
   ###
-  require("dplyr", "sf")
+  require(dplyr, sf)
   ### create function to generate the relative rank of emission from all facilities 
   normalizeVolume <- function(x){
     max <- max(x, na.rm = TRUE)
@@ -39,7 +39,7 @@ processHAPS <- function(filePath, geometry){
                   ,SITE_CE_ESTIM
                   )%>%
     dplyr::group_by(APCD_SITE_ID)%>%
-    dplyr::summarise_all(median)
+    dplyr::summarise_all(median ,na.rm = TRUE)
   
   ### normalize data based on volume of emission 
   d2[,2:15] <- apply(d2[,2:15], MARGIN = 2, FUN = normalizeVolume)
@@ -47,7 +47,13 @@ processHAPS <- function(filePath, geometry){
   d2$total <- rowSums(d2[,c(-1)], na.rm = TRUE)
   ### drop all non poluting sites 
   d2 <- d2[d2$total != 0, ]
-
+  
+  ### temp 20210913
+  # generate count of all non na values 
+  #d3 <- colSums(x = !is.na(d2))
+  #View(d3)
+  
+  
   ### create spatial feature based on sites of interest 
   sp1 <- d1 %>%
     dplyr::filter(APCD_SITE_ID %in% d2$APCD_SITE_ID)%>%

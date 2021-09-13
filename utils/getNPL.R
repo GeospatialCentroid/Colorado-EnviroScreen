@@ -5,17 +5,25 @@
 ###
 
 # testing
-# geometry <- sf::st_read("data/censusTract/coloradoCensusTracts.geojson")
+# geometry <- sf::st_read("data/censusBlockGroup/coloradoCensusBlockGroups.geojson")
+# t1 <- Sys.time()
 # d2 <- getNPL(geometry = geometry)
+# t2 <- Sys.time()- t1
+
+# census block group : 40.5 secs 
+# census tract time : 33.4 secs
+# county time : 9.0 secs 
 
 getNPL <- function(geometry){
-  require(arcpullr, dplyr, sf)
-  
+  x <- c("arcpullr","dplyr", "sf" )
+  lapply(x, require, character.only = TRUE)
+
   # grab dataset from arc server 
   # crs is ESPG:3857
   # need to convert equal area 6954 (https://spatialreference.org/ref/sr-org/6954/)
   npl <- arcpullr::get_spatial_layer(url = "https://services3.arcgis.com/66aUo8zsujfVXRIT/arcgis/rest/services/CDPHE_Colorado_Superfund_NPL_NRD/FeatureServer/0")%>%
-    sf::st_transform(crs = st_crs("+proj=laea +lat_0=45 +lon_0=-100 +x_0=0 +y_0=0 +a=6370997 +b=6370997 +units=m +no_defs"))
+    sf::st_transform(crs = st_crs("+proj=laea +lat_0=45 +lon_0=-100 +x_0=0 +y_0=0 +a=6370997 +b=6370997 +units=m +no_defs"))%>%
+    sf::st_make_valid()
   
   geom <- geometry %>%
     sf::st_transform(crs = st_crs("+proj=laea +lat_0=45 +lon_0=-100 +x_0=0 +y_0=0 +a=6370997 +b=6370997 +units=m +no_defs"))%>%
