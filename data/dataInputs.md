@@ -50,3 +50,6 @@
 | Sensitive Populations         | Metrics included in CDPHE Community Health Equity Map |0  |0  | low |
 | Sensitive Populations         | Metrics included in CDC Minority Health Social Vulnerability Index | 0 | 0 | low  |
 | Environmental Effects         | Underground Storage Tanks & Leaking Underground Storage Tanks | 0 | 0 | low |
+| Sensitive Populations         | life expentency | 0  |  0 | medium |
+| Sensitive Populations         | pregency | 0 | 0 | medium | 
+
