@@ -5,7 +5,7 @@
 ### 
 
 # load required libraries 
-pacman::p_load(tigris, dplyr, sf, tidycensus, tidyr)
+pacman::p_load(tigris, dplyr, sf, stringr, tidyr)
 
 # source functions; this is verbose, so temp object is created then removed 
 ### if we can find a way to pass parameters to the source function within the lapply we can get around this. 
@@ -68,6 +68,12 @@ cliImapcts <-  as.data.frame(geometry) %>%
 # use character to describe the spatial scale at which data is gathered.
 #  
 acsData <- getACS(processingLevel = processingLevel, year = 2019)
+
+asthma <- getAsthma(filePath = "data/asthma/Asthma_Hospitalization_Rate_(Census_Tracts).csv",
+                    geometry = geometry)
+
+heartDisease <- getHearthDisease(filePath = "data/heartDisease/Heart_Disease_in_Adults_-_CDPHE_Community_Level_Estimates_(Census_Tracts).csv",
+                                 geometry = geometry)
 
 ####
 # Socioeconomic Factors
