@@ -5,13 +5,13 @@ library(vroom)
 library(sf)
 library(stringr)
 
+#filePath <- "data/2017_pm25_daily_average.txt.gz"
 
-# now create function to get data for each geometry
 
-getPM25 <- function(geometry){
+getPM25 <- function(filePath, geometry){
   
   #read in and clean data
-  d <- vroom("data/2017_pm25_daily_average.txt.gz") %>% 
+  d <- vroom(filePath) %>% 
     #filter just colorado tracts
     filter(str_starts(FIPS, "08")) %>%
     #concentration was read in as character
