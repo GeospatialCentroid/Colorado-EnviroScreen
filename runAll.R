@@ -75,6 +75,9 @@ asthma <- getAsthma(filePath = "data/asthma/Asthma_Hospitalization_Rate_(Census_
 heartDisease <- getHearthDisease(filePath = "data/heartDisease/Heart_Disease_in_Adults_-_CDPHE_Community_Level_Estimates_(Census_Tracts).csv",
                                  geometry = geometry)
 
+lowBirthWeight <- getLowBirthWeight(filePath = "data/lowWeightBirth/Low_Weight_Birth_Rate_(Census_Tracts).csv",
+                                    geometry = geometry)
+
 ####
 # Socioeconomic Factors
 ####

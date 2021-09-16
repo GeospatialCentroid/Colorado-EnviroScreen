@@ -4,9 +4,9 @@
 # 20210915
 ###
 
-# use HeartDisease_Census_Tract_Estimate for census/blockgroup 
-# use HeartDisease_County_Regional_Estimate for county 
-# #testing
+# use HeartDisease_Census_Tract_Estimate for census/blockgroup
+# use HeartDisease_County_Regional_Estimate for county
+#testing
 # library(sf)
 # library(dplyr)
 # library(stringr)
@@ -16,7 +16,7 @@
 # geometry <- sf::st_read("data/county/coloradoCounties.geojson")
 # 
 # t1 <- Sys.time()
-# d2 <- getHearthDisease(filePath = filePath, geometry = geometry)
+# d2 <- getHeartDisease(filePath = filePath, geometry = geometry)
 # t2 <- Sys.time() - t1
 # t2
 
@@ -39,28 +39,16 @@ getHeartDisease <- function(filePath, geometry){
     dplyr::select(GEOID, HeartDisease_Census_Tract_Estimate, countyEstimate)
   
   
-  # convert spatial Object to dataframe and assign storage value 
-  geom <- as.data.frame(geometry)%>%
-    dplyr::select("GEOID")%>%
-    dplyr::mutate(heartDisease = NA)
-  
   ### select processing level by comparing length of GEOID between objects
-  if(nchar(geom$GEOID[1]) >= nchar(d1$GEOID[1])){ 
-    # geom equal or smaller then input dataset only one value will transfer 
-    for(i in seq_along(geom$GEOID)){
-      # consider vectorizing this operation--slow with census block group data
-      geom$heartDisease[i] <- d1$HeartDisease_Census_Tract_Estimate[stringr::str_detect(geom$GEOID[i], d1$GEOID)]
-    }
+  if(nchar(geometry$GEOID[1]) >= nchar(d1$GEOID[1])){ 
+    #add tract-level column to use as join then keep original geoid (tract or block)
+    geom <- as.data.frame(geometry) %>% mutate(GEOID = str_sub(GEOID, start = 1, end = 11)) %>% 
+      left_join(d1, by = "GEOID") %>% dplyr::select(GEOID, heartDisease = HeartDisease_Census_Tract_Estimate) 
   }else{
-    # condition to grab partial match from the smaller feature and summarize. 
-    # not sure how to do this without the loop 
-    for(i in seq_along(geom$GEOID)){
-      val <- d1 %>%
-        dplyr::filter(
-          stringr::str_detect(GEOID,pattern = geom$GEOID[i]))
-      # assign value back to geom feature
-      geom$heartDisease[i]<- as.numeric(val$countyEstimate[1])
-    }
+    # when geometry is county level.. just cut FIPS to county level and group by that
+    geom <-  d1 %>% mutate(GEOID = str_sub(GEOID, start = 1, end = 5)) %>% 
+      group_by(GEOID) %>% 
+      summarise(heartDisease = countyEstimate[1] )
   }
   return(geom)
 }
