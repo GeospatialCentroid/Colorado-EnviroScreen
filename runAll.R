@@ -63,7 +63,7 @@ cliImapcts <-  as.data.frame(geometry) %>%
 
 ####
 # Sensitive Populations
-####
+#### 
 # gather and derive the social demographic elements from 
 # use character to describe the spatial scale at which data is gathered.
 #  
