@@ -78,6 +78,9 @@ heartDisease <- getHearthDisease(filePath = "data/heartDisease/Heart_Disease_in_
 lowBirthWeight <- getLowBirthWeight(filePath = "data/lowWeightBirth/Low_Weight_Birth_Rate_(Census_Tracts).csv",
                                     geometry = geometry)
 
+lifeExpectany <- getLifeExpectancy(filePath = "data/U.S._Life_Expectancy_at_Birth_by_State_and_Census_Tract_-_2010-2015.csv",
+                                   geometry = geometry)
+
 ####
 # Socioeconomic Factors
 ####
