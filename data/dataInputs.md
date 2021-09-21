@@ -14,7 +14,7 @@
 | Future climate hazards        | Flood (costs associated with damage to buildings and infrastructure)      | 1         | 1                |         high    |
 | Sensitive populations         | Asthma hospitalization rate (CDPHE/CHA, 2013-2017)                        | 1         | 1                |         high    |
 | Sensitive populations         | Heart disease in adults (CDPHE/BRFSS 2014-2017)                           | 1         | 1                |         high    |
-| Sensitive populations         | Low weight birth rate (CDPHE - Vital Statistics, 2013-2017                | 1         | 0                |         high    |
+| Sensitive populations         | Low weight birth rate (CDPHE - Vital Statistics, 2013-2017                | 1         | 1                |         high    |
 | Sensitive populations         | Population under 5                                                        | 1         | 1                |         medium  |
 | Sensitive populations         | Population over 64                                                        | 1         | 1                |         medium  |
 | Socioeconomic characteristics | Percent people of color                                                   | 1         | 1                |         high    |
@@ -50,6 +50,6 @@
 | Sensitive Populations         | Metrics included in CDPHE Community Health Equity Map                     |0  |0  | low |
 | Sensitive Populations         | Metrics included in CDC Minority Health Social Vulnerability Index        | 0 | 0 | low  |
 | Environmental Effects         | Underground Storage Tanks & Leaking Underground Storage Tanks             | 0 | 0 | low |
-| Sensitive Populations         | life expentency                                                           | 1  |  0 | medium |
+| Sensitive Populations         | life expentency                                                           | 1  |  1 | medium |
 | Sensitive Populations         | pregency                                                                  | 0 | 0 | medium | 
 
