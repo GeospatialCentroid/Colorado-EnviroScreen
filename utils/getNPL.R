@@ -61,11 +61,11 @@ getNPL <- function(geometry){
 
 
 #test function
-
-geometry <- st_read("data/censusBlockGroup/coloradoCensusBlockGroups.geojson")
-t <- Sys.time()
-getNPL(geometry)
-Sys.time() - t
+# 
+# geometry <- st_read("data/censusBlockGroup/coloradoCensusBlockGroups.geojson")
+# t <- Sys.time()
+# getNPL(geometry)
+# Sys.time() - t
 
 #county = 2.98 sec
 # tract = 5.25
