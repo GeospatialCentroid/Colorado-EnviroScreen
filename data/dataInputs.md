@@ -2,16 +2,16 @@
 |-------------------------------|---------------------------------------------------------------------------|-----------|------------------|-----------------|
 | Environmental Exposures       | Ozone                                                                     | 1         | 0                |         high    |
 | Environmental Exposures       | PM2.5                                                                     | 1         | 0                |         high    |
-| Environmental Exposures       | Pre-1960 housing (lead risk)                                              | 1         | 0                |         high    |
-| Environmental Exposures       | Traffic proximity and volume (DOT 2017)                                   | 1         | 0                |         high    |
-| Environmental Exposures       | Diesel PM                                                                 | 1         | 0                |         high    |
+| Environmental Exposures       | Pre-1960 housing (lead risk)                                              | 1         | 1                |         high    |
+| Environmental Exposures       | Traffic proximity and volume (DOT 2017)                                   | 1         | 1                |         high    |
+| Environmental Exposures       | Diesel PM                                                                 | 1         | 1                |         high    |
 | Environmental Effects         | Proximity to National Priorities List (NPL) sites                         | 1         | 1                |         high    |
-| Environmental Effects         | Proximity to Risk Management Plan (RMP) sites                             | 1         | 0                |         high    |
-| Environmental Effects         | Wastewater Discharge Indicator (Stream Proximity and Toxic Concentration) | 1         | 0                |         high    |
-| Environmental Effects         | Proximity to Hazardous Waste Facilities                                   | 1         | 0                |         high    |
-| Future climate hazards        | Wildfire (costs related to suppression and buildings)                     | 1         | 0                |         high    |
-| Future climate hazards        | Drought (costs related to agriculture, skiing, rafting)                   | 1         | 0                |         high    |
-| Future climate hazards        | Flood (costs associated with damage to buildings and infrastructure)      | 1         | 0                |         high    |
+| Environmental Effects         | Proximity to Risk Management Plan (RMP) sites                             | 1         | 1                |         high    |
+| Environmental Effects         | Wastewater Discharge Indicator (Stream Proximity and Toxic Concentration) | 1         | 1                |         high    |
+| Environmental Effects         | Proximity to Hazardous Waste Facilities                                   | 1         | 1                |         high    |
+| Future climate hazards        | Wildfire (costs related to suppression and buildings)                     | 1         | 1                |         high    |
+| Future climate hazards        | Drought (costs related to agriculture, skiing, rafting)                   | 1         | 1                |         high    |
+| Future climate hazards        | Flood (costs associated with damage to buildings and infrastructure)      | 1         | 1                |         high    |
 | Sensitive populations         | Asthma hospitalization rate (CDPHE/CHA, 2013-2017)                        | 1         | 1                |         high    |
 | Sensitive populations         | Heart disease in adults (CDPHE/BRFSS 2014-2017)                           | 1         | 1                |         high    |
 | Sensitive populations         | Low weight birth rate (CDPHE - Vital Statistics, 2013-2017                | 1         | 0                |         high    |
@@ -26,10 +26,10 @@
 | Misc. flag variables          | Urban/Rural                                                               | 0         | 0                |         medium  |
 | Climate                       | Wildfire risk                                                             | 1         | 1                |         high    |
 | Climate                       | Flood plains                                                              | 0         | 0                |         high    |
-| Climate                       | Projected heat days                                                       | 0          |0                 |            high |
-| Socioeconomic factors         | Percent disability                                                        | 0          |0  | high |
-| Environmental Exposures       | Air Toxics Emissions (Hazardous Air Pollutants or "HAPs")                 | 1          |1  | high |
-| Environmental Exposures       | Other Criteria Pollutants (SOx, NOx, CO, PB, PM10)                        |  0  |0  | high |
+| Climate                       | Projected heat days                                                       | 0          |0                |            high |
+| Socioeconomic factors         | Percent disability                                                        | 0          |0                | high |
+| Environmental Exposures       | Air Toxics Emissions (Hazardous Air Pollutants or "HAPs")                 | 1          |1                | high |
+| Environmental Exposures       | Other Criteria Pollutants (SOx, NOx, CO, PB, PM10)                        |  0         |0                | high |
 | Environmental Exposures       | Proximity to oil and gas facilities (Oil & Gas Locations; Centralized E&P Waste Management Facilities; Pipelines (flowlines & gathering lines); Open remediation projects; pits; maybe wells not associated w/O&G locations); consider also using COGCC water well data: https://cogcc.state.co.us/documents/data/downloads/environmental/WaterWellDownload.html                                                                       |1  |0  | high |
 | Environmental Exposures       | Impaired surface waters                                                   |0  |0  | medium |
 | Environmental Exposures       | Drinking Water quality Public water system sample results                 |0  |0  | high |
