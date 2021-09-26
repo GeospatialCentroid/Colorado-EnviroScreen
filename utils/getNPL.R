@@ -1,101 +1,73 @@
-###
-# process the NPL sites data 
-# 20210907
-# carverd@colostate.edu
-###
 
-# testing
-# geometry <- sf::st_read("data/censusBlockGroup/coloradoCensusBlockGroups.geojson")
-# t1 <- Sys.time()
-# d2 <- getNPL(geometry = geometry)
-# t2 <- Sys.time()- t1
+# Get superfund sites
 
-# census block group : 40.5 secs 
-# census tract time : 33.4 secs
-# county time : 9.0 secs 
+library(arcpullr)
+library(sf)
+library(dplyr)
+
 
 getNPL <- function(geometry){
-  x <- c("arcpullr","dplyr", "sf" )
-  lapply(x, require, character.only = TRUE)
-
-  # grab dataset from arc server 
-  # crs is ESPG:3857
-  # need to convert equal area 6954 (https://spatialreference.org/ref/sr-org/6954/)
-  npl <- arcpullr::get_spatial_layer(url = "https://services3.arcgis.com/66aUo8zsujfVXRIT/arcgis/rest/services/CDPHE_Colorado_Superfund_NPL_NRD/FeatureServer/0")%>%
-    sf::st_transform(crs = st_crs("+proj=laea +lat_0=45 +lon_0=-100 +x_0=0 +y_0=0 +a=6370997 +b=6370997 +units=m +no_defs"))%>%
-    sf::st_make_valid()
+  
+  #get data from arc server, fix geometry, and change to projected crs
+  npl <-
+    arcpullr::get_spatial_layer(url = "https://services3.arcgis.com/66aUo8zsujfVXRIT/arcgis/rest/services/CDPHE_Colorado_Superfund_NPL_NRD/FeatureServer/0") %>% 
+    st_transform(crs = 5070) %>% 
+    st_make_valid() 
   
   geom <- geometry %>%
-    sf::st_transform(crs = st_crs("+proj=laea +lat_0=45 +lon_0=-100 +x_0=0 +y_0=0 +a=6370997 +b=6370997 +units=m +no_defs"))%>%
+    st_transform(crs = 5070) %>% 
     dplyr::select(GEOID)
   
-  # buffer each location using following conditions 
-  # 250 : 1
-  # 500 : 0.5
-  # 750 : 0.25
-  # 1000 : 0.1
-  # distance in meters 
-  # need to dissolve based on overlap. 
+  dist <- seq(250, 1000, by = 250)
+  weight <- c(1, 0.5, 0.2, 0.1)
+  intersect <- vector("list", length = length(dist))
   
   
-  ### testing for each NPL site, 
-  # create column for each site 
-  cNames <- rep(as.character(1:nrow(npl)))
-  geom[,cNames] <- NA
-  # loop over each site and test for intersections. 
-  for(i in seq_along(npl$FID)){
-    # select specific location
-    site <- npl %>% 
-      dplyr::slice(i)%>%
-      select(FID)
-    ###
-    # workflow for buffering process 
-    # buffer at minimun distance
-    # if intersect, assign value and remove geom feature from options as this 
-    # will be highest ranked score possible.
-    # test for intersect at larger buffer, assign values or end test of no
-    # intersection is found. 
-    # repeat the filtering up until buffer dist == 1000
+  for (i in 1:length(dist)) {
     
-    # buffer and test interestion 
-    t2 <- sf::st_buffer(x = site, dist = 250 )%>%
-      sf::st_intersects(geom, sparse = FALSE)
-    # define column index 
-    index <- as.character(i)
-    # assign value when possible and elemante from list. 
-    if(length(unique(t2[1,]))==2){
-      geom[t2 ,index] <- 1 
-      g2 <- geom[is.na(geom[,index]),]
-      # buffer to next distance 
-      t3 <- sf::st_buffer(x = site, dist = 500 )%>%
-        sf::st_intersects(g2, sparse = FALSE)
-      #test for new match 
-      if(length(unique(t3[1,]))==2){
-        geom[t3 ,index] <- 0.5 
-        g3 <- geom[is.na(geom[,index]),]
-        # buffer to next distance 
-        t4 <- sf::st_buffer(x = site, dist = 750 )%>%
-          sf::st_intersects(g3, sparse = FALSE)
-        if(length(unique(t4[1,]))==2){
-          geom[t4 ,index] <- 0.25 
-          g4 <- geom[is.na(geom[,index]),]
-          # buffer to next distance 
-          t5 <- sf::st_buffer(x = site, dist = 1000 )%>%
-            sf::st_intersects(g4, sparse = FALSE)
-          if(length(unique(t5[1,]))==2){
-            geom[t5 ,index] <- 0.1
-          }
-        }
-      }
-    }
+    b <- st_buffer(npl, dist[i]) %>% 
+      mutate(dist = dist[i], weight = weight[i])
+    
+
+    intersect[[i]] <- st_intersection(geom, b)
+    
+
   }
-    
-    geom$nplScore <- geom %>% as.data.frame() %>% select(-c(1,2)) %>% rowSums(na.rm=TRUE) 
-    geom <- geom %>%
-      as.data.frame()%>%
-      dplyr::select(GEOID, nplScore) 
-    return(geom)
+  
+  
+  #now combine into one df
+  intersect_all <- bind_rows(intersect)
+  
+  
+  #now need to refine to distinct geoID/npl ID pairs, BUT if geoID overlaps
+  # npl multiple times, take the HIGHEST weight, so arrange by weight first 
+  # (distinct keeps first row of duplicated columns)
+  
+  npl_scores <- intersect_all %>% 
+    arrange(desc(weight)) %>% 
+    dplyr::distinct(GEOID, FID, .keep_all = TRUE) %>% 
+    group_by(GEOID) %>% 
+    summarise(npl_score = sum(weight, na.rm = TRUE)) %>%
+    as.data.frame() %>%
+    #right join so final dataset has all geoid, but non-intersects have NA
+    right_join(as.data.frame(geom), by = "GEOID") %>% 
+    dplyr::select(GEOID, npl_score) 
+   
+  
+  return(npl_scores)
+
+  
+  
 }
 
 
+#test function
+# 
+# geometry <- st_read("data/censusBlockGroup/coloradoCensusBlockGroups.geojson")
+# t <- Sys.time()
+# getNPL(geometry)
+# Sys.time() - t
 
+#county = 2.98 sec
+# tract = 5.25
+# block = 9.38
