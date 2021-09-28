@@ -1,21 +1,32 @@
 # get EJScreen ACS census variables
 
+# testing
+# library(tidycensus)
+# library(dplyr)
+# library(tidyr)
+# processingLevel <- "tract"
+# year <-
+# tic()
+# d2 <- getACS(filePath = filePath, geometry = geometry)
+# toc()
+
+
 #'geometry' is one of "block group", "tract", or "county"
 
 getACS <- function(processingLevel, year ){
   ###
-  # Workflow pulled from the EPA ejscreen methodology 
-  #geometry = character descirbing the spatial extent 
-  #year = numeric value define the year to pull data from 
+  # Workflow pulled from the EPA ejscreen methodology
+  # geometry = character descirbing the spatial extent
+  # year = numeric value define the year to pull data from
   ###
-  require(tidycensus, dplyr, tidyr)
-  
-  # call census api key 
+  x <- c("tidycensus","dplyr","tidyr")
+  lapply(x, require, character.only = TRUE)
+  # call census api key
   getCensusAPIKey()
-  #### potential for some conditional testing here, but this is getting 
-  #### more complicated then it really needs to be... so something to 
-  #### come back too. 
-  
+  #### potential for some conditional testing here, but this is getting
+  #### more complicated then it really needs to be... so something to
+  #### come back too.
+
   # change the geometry character to match requirements in tidy census
   if(processingLevel == "censusBlockGroup"){
     processingLevel <- "block group"
@@ -26,8 +37,8 @@ getACS <- function(processingLevel, year ){
   if(processingLevel == "censusTract"){
     processingLevel <- "tract"
   }
-  
-  # pull ACS data 
+
+  # pull ACS data
   acs <- tidycensus::get_acs(
     geography = processingLevel,
     variables = c(
@@ -59,13 +70,13 @@ getACS <- function(processingLevel, year ){
     year = year
   )
 
-  
-        
+
+
   # NOTE, for those where total pop/known pop is '0' I change to NA. EJ Screen
-  # would set these to '0' but in some cases '0' was actually a meaningful 
+  # would set these to '0' but in some cases '0' was actually a meaningful
   # number (i.e., 0 people of color)
-   
-     
+
+
     acs %>% tidyr::spread(key = variable, value = estimate) %>%
 
       dplyr::group_by(GEOID) %>%
@@ -104,10 +115,8 @@ getACS <- function(processingLevel, year ){
             B15002_027
           ) / B15002_001
         )
-      ) %>% 
+      ) %>%
       dplyr::select(GEOID, age_under5, age_over64, percent_minority, percent_lowincome,
              percent_lingiso, percent_lths)
-    
+
 }
-
-

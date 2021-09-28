@@ -5,7 +5,8 @@
 ### 
 
 # load required libraries 
-pacman::p_load(tigris, dplyr, sf, stringr, tidyr)
+install.packages("pacman")
+pacman::p_load(tigris, dplyr, sf, stringr, tidyr, sp, tictoc, vroom, terra)
 
 # source functions; this is verbose, so temp object is created then removed 
 ### if we can find a way to pass parameters to the source function within the lapply we can get around this. 
@@ -27,6 +28,12 @@ geometry <- setSpatialData(dataFolder = "data/",scale = processingLevel)
 ### call function that loops over all inputs data and processes the dataset. 
 
 ### we might want to break this out by Component (exposures, effects, climate,  population, socioeconomic)
+
+### EJScreen data contributes to multiple components run it here then split out
+ejscreen <- getEJScreen(filePath = "data/EJScreen/EJSCREEN_2020_StatePctile.csv",
+                        geometry = geometry)
+
+
 
 ####
 # Exposures
@@ -60,6 +67,10 @@ envEffect <- as.data.frame(geometry) %>%
 ####
 cliImapcts <-  as.data.frame(geometry) %>% 
   dplyr::select(GEOID)
+
+# this one takes a long time... 
+wildfire <- getWildfile()
+
 
 ####
 # Sensitive Populations
