@@ -9,9 +9,9 @@
 | Environmental Effects         | Proximity to Risk Management Plan (RMP) sites                             | 1         | 1                |         high    | [ejscreen](https://www.epa.gov/ejscreen/overview-environmental-indicators-ejscreen)         |
 | Environmental Effects         | Wastewater Discharge Indicator (Stream Proximity and Toxic Concentration) | 1         | 1                |         high    |          |
 | Environmental Effects         | Proximity to Hazardous Waste Facilities                                   | 1         | 1                |         high    |          |
-| Future climate hazards        | Wildfire (costs related to suppression and buildings)                     | 1         | 1                |         high    |          |
-| Future climate hazards        | Drought (costs related to agriculture, skiing, rafting)                   | 1         | 1                |         high    |          |
-| Future climate hazards        | Flood (costs associated with damage to buildings and infrastructure)      | 1         | 1                |         high    |          |
+| Future climate hazards        | Wildfire (costs related to suppression and buildings)                     | 1         | 1                |         high    | [DNR FACE Hazards](https://dnrftp.state.co.us/#/CWCB/Climate/FACE_Hazards_Data/)          |
+| Future climate hazards        | Drought (costs related to agriculture, skiing, rafting)                   | 1         | 1                |         high    | [DNR FACE Hazards](https://dnrftp.state.co.us/#/CWCB/Climate/FACE_Hazards_Data/)         |
+| Future climate hazards        | Flood (costs associated with damage to buildings and infrastructure)      | 1         | 1                |         high    | [DNR FACE Hazards](https://dnrftp.state.co.us/#/CWCB/Climate/FACE_Hazards_Data/)         |
 | Sensitive populations         | Asthma hospitalization rate (CDPHE/CHA, 2013-2017)                        | 1         | 1                |         high    |          |
 | Sensitive populations         | Heart disease in adults (CDPHE/BRFSS 2014-2017)                           | 1         | 1                |         high    |          |
 | Sensitive populations         | Low weight birth rate (CDPHE - Vital Statistics, 2013-2017                | 1         | 1                |         high    |          |
