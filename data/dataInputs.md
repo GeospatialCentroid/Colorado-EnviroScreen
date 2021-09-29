@@ -5,8 +5,8 @@
 | Environmental Exposures       | Pre-1960 housing (lead risk)                                              | 1         | 1                |         high    | [ejscreen](https://www.epa.gov/ejscreen/overview-environmental-indicators-ejscreen)         |
 | Environmental Exposures       | Traffic proximity and volume (DOT 2017)                                   | 1         | 1                |         high    | [ejscreen](https://www.epa.gov/ejscreen/overview-environmental-indicators-ejscreen)         |
 | Environmental Exposures       | Diesel PM                                                                 | 1         | 1                |         high    | [ejscreen](https://www.epa.gov/ejscreen/overview-environmental-indicators-ejscreen)         |
-| Environmental Effects         | Proximity to National Priorities List (NPL) sites                         | 1         | 1                |         high    |          |
-| Environmental Effects         | Proximity to Risk Management Plan (RMP) sites                             | 1         | 1                |         high    |          |
+| Environmental Effects         | Proximity to National Priorities List (NPL) sites                         | 1         | 1                |         high    | [ejscreen](https://www.epa.gov/ejscreen/overview-environmental-indicators-ejscreen)         |
+| Environmental Effects         | Proximity to Risk Management Plan (RMP) sites                             | 1         | 1                |         high    | [ejscreen](https://www.epa.gov/ejscreen/overview-environmental-indicators-ejscreen)         |
 | Environmental Effects         | Wastewater Discharge Indicator (Stream Proximity and Toxic Concentration) | 1         | 1                |         high    |          |
 | Environmental Effects         | Proximity to Hazardous Waste Facilities                                   | 1         | 1                |         high    |          |
 | Future climate hazards        | Wildfire (costs related to suppression and buildings)                     | 1         | 1                |         high    |          |
@@ -15,10 +15,10 @@
 | Sensitive populations         | Asthma hospitalization rate (CDPHE/CHA, 2013-2017)                        | 1         | 1                |         high    |          |
 | Sensitive populations         | Heart disease in adults (CDPHE/BRFSS 2014-2017)                           | 1         | 1                |         high    |          |
 | Sensitive populations         | Low weight birth rate (CDPHE - Vital Statistics, 2013-2017                | 1         | 1                |         high    |          |
-| Socioeconomic characteristics | Percent people of color                                                   | 1         | 1                |         high    |          |
-| Socioeconomic characteristics | Percent low income                                                        | 1         | 1                |         high    |          |
-| Socioeconomic characteristics | Percent linguistic isolation                                              | 1         | 1                |         high    |          |
-| Socioeconomic characteristics | Percent less than high school education                                   | 1         | 1                |         high    |          |
+| Socioeconomic characteristics | Percent people of color                                                   | 1         | 1                |         high    | [ejscreen](https://www.epa.gov/ejscreen/overview-demographic-indicators-ejscreen)         |
+| Socioeconomic characteristics | Percent low income                                                        | 1         | 1                |         high    | [ejscreen](https://www.epa.gov/ejscreen/overview-demographic-indicators-ejscreen)         |
+| Socioeconomic characteristics | Percent linguistic isolation                                              | 1         | 1                |         high    | [ejscreen](https://www.epa.gov/ejscreen/overview-demographic-indicators-ejscreen)         |
+| Socioeconomic characteristics | Percent less than high school education                                   | 1         | 1                |         high    | [ejscreen](https://www.epa.gov/ejscreen/overview-demographic-indicators-ejscreen)         |
 | Misc. flag variables          | Oil and gas community                                                     | 0         | 0                |         high    |          |
 | Misc. flag variables          | Coal power plant community                                                | 0         | 0                |         high    |          |
 | Climate                       | Wildfire risk                                                             | 1         | 1                |         high    |          |
