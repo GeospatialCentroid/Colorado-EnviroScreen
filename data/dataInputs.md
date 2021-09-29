@@ -32,9 +32,9 @@
 | Sensitive Populations         | Housing Cost-Burdened Communities                                         | 1         |0                 |          high   |          |
 | Mining and smelter locations  | Mining and smelter locations (historical, current)                        | 1         | 0                |          high   |          |
 | Misc. flag variables          | Urban/Rural                                                               | 1         | 0                |         medium  |          |
-| Sensitive populations         | Population under 5                                                        | 1         | 1                |         medium  |          |
+| Sensitive populations         | Population under 5                                                        | 1         | 1                |         medium  | [ejscreen](https://www.epa.gov/ejscreen/overview-demographic-indicators-ejscreen) or [ACS](https://www.census.gov/programs-surveys/acs/data/summary-file.html)         |
 | Environmental Exposures       | Impaired surface waters                                                   |0          |0                 |          medium |          |
-| Sensitive populations         | Population over 64                                                        | 1         | 1                |         medium  |          |
+| Sensitive populations         | Population over 64                                                        | 1         | 1                |         medium  | [ejscreen](https://www.epa.gov/ejscreen/overview-demographic-indicators-ejscreen) or [ACS](https://www.census.gov/programs-surveys/acs/data/summary-file.html)         |
 | Environmental Exposures       | Solar radiation                                                           |0          |0                 |          medium |          |
 | Environmental Exposures       | Radon                                                                     |0          |0                 |          medium |          |
 | Environmental Exposures       | Other radiation exposure sources                                          | 0         | 0                |          medium |          |
