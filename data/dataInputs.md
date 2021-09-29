@@ -2,9 +2,9 @@
 |-------------------------------|---------------------------------------------------------------------------|-----------|------------------|-----------------|-----------------|
 | Environmental Exposures       | Ozone                                                                     | 1         | 0                |         high    |  [example](www.google.com)        |
 | Environmental Exposures       | PM2.5                                                                     | 1         | 1                |         high    | [ejscreen](https://www.epa.gov/ejscreen/overview-environmental-indicators-ejscreen)         |
-| Environmental Exposures       | Pre-1960 housing (lead risk)                                              | 1         | 1                |         high    |          |
-| Environmental Exposures       | Traffic proximity and volume (DOT 2017)                                   | 1         | 1                |         high    |          |
-| Environmental Exposures       | Diesel PM                                                                 | 1         | 1                |         high    |          |
+| Environmental Exposures       | Pre-1960 housing (lead risk)                                              | 1         | 1                |         high    | [ejscreen](https://www.epa.gov/ejscreen/overview-environmental-indicators-ejscreen)         |
+| Environmental Exposures       | Traffic proximity and volume (DOT 2017)                                   | 1         | 1                |         high    | [ejscreen](https://www.epa.gov/ejscreen/overview-environmental-indicators-ejscreen)         |
+| Environmental Exposures       | Diesel PM                                                                 | 1         | 1                |         high    | [ejscreen](https://www.epa.gov/ejscreen/overview-environmental-indicators-ejscreen)         |
 | Environmental Effects         | Proximity to National Priorities List (NPL) sites                         | 1         | 1                |         high    |          |
 | Environmental Effects         | Proximity to Risk Management Plan (RMP) sites                             | 1         | 1                |         high    |          |
 | Environmental Effects         | Wastewater Discharge Indicator (Stream Proximity and Toxic Concentration) | 1         | 1                |         high    |          |
