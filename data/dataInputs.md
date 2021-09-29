@@ -1,7 +1,7 @@
 | Group                         | Data Indicator                                                            | Collected | Function Develop | Priority Level  |  Source Reference|
 |-------------------------------|---------------------------------------------------------------------------|-----------|------------------|-----------------|-----------------|
 | Environmental Exposures       | Ozone                                                                     | 1         | 0                |         high    |  [example](www.google.com)        |
-| Environmental Exposures       | PM2.5                                                                     | 1         | 1                |         high    |          |
+| Environmental Exposures       | PM2.5                                                                     | 1         | 1                |         high    | [EJScreen] (https://www.epa.gov/ejscreen/environmental-justice-indexes-ejscreen)           |
 | Environmental Exposures       | Pre-1960 housing (lead risk)                                              | 1         | 1                |         high    |          |
 | Environmental Exposures       | Traffic proximity and volume (DOT 2017)                                   | 1         | 1                |         high    |          |
 | Environmental Exposures       | Diesel PM                                                                 | 1         | 1                |         high    |          |
