@@ -4,10 +4,22 @@
 # 20210826
 ###
 
-# ### testing 
-filePath <- "data/haps/APENs 8_24_2021.csv"
-geometry <- sf::st_read("F:/geoSpatialCentroid/coEnvrioScreen/data/censusBlockGroup/coloradoCensusBlockGroups.geojson")
-# ###
+
+### testing
+# filePath <- "data/haps/APENs 8_24_2021.csv"
+# geometry <- sf::st_read("data/censusBlockGroup/coloradoCensusBlockGroups.geojson")
+# geometry <- sf::st_read("data/censusTract/coloradoCensusTracts.geojson")
+# geometry <- sf::st_read("data/county/coloradoCounties.geojson")
+# #
+# # library(tictoc)
+# tic()
+# d2 <- processHAPS( filePath = filePath, geometry = geometry)
+# toc()
+# View(d2)
+# county : 11.3
+# censusTract : 23 sec
+# censusBlockgroup : 36 sec
+
 
 processHAPS <- function(filePath, geometry){
   ### Processes the HAPS dataset establishing a volume weighted score by geometry
@@ -15,12 +27,12 @@ processHAPS <- function(filePath, geometry){
   # geometry : sf object of the census block group, census track, or county
   # return : a dataframe with geoid and haps score 
   ###
-  require(dplyr, sf)
-  ### create function to generate the relative rank of emission from all facilities 
-  normalizeVolume <- function(x){
-    max <- max(x, na.rm = TRUE)
-    return(x / max)
-  }
+
+  x <- c("sf","dplyr")
+  lapply(x, require, character.only = TRUE)
+  
+  #call in normalize function 
+  source("utils/processingFunctions/normalizeVector.R")
   
   # read in dataset and drop locations with no coordinates 
   d1 <- read.csv(filePath)%>%
@@ -42,46 +54,64 @@ processHAPS <- function(filePath, geometry){
     dplyr::summarise_all(median ,na.rm = TRUE)
   
   ### normalize data based on volume of emission 
-  d2[,2:15] <- apply(d2[,2:15], MARGIN = 2, FUN = normalizeVolume)
+  d2[,2:15] <- apply(d2[,2:15], MARGIN = 2, FUN = normalizeVector)
   ### calculate total 
   d2$total <- rowSums(d2[,c(-1)], na.rm = TRUE)
   ### drop all non poluting sites 
   d2 <- d2[d2$total != 0, ]
   
-  ### temp 20210913
-  # generate count of all non na values 
-  #d3 <- colSums(x = !is.na(d2))
-  #View(d3)
-  
-  
+
   ### create spatial feature based on sites of interest 
   sp1 <- d1 %>%
     dplyr::filter(APCD_SITE_ID %in% d2$APCD_SITE_ID)%>%
     distinct(APCD_SITE_ID, .keep_all = TRUE)%>%
-    dplyr::select("APCD_SITE_ID",
+    dplyr::select("APCD_SITE_ID",   # rename for input into buffer process
                   "SITE_X_COORDINATE",
                   "SITE_Y_COORDINATE")%>%
-    st_as_sf(.,coords=c("SITE_X_COORDINATE","SITE_Y_COORDINATE"),crs=4269)
+    st_as_sf(.,coords=c("SITE_X_COORDINATE","SITE_Y_COORDINATE"),crs=4269)%>%
+    sf::st_transform(crs = 5070) %>% 
+    st_make_valid() 
+  
+  # reproject data to the espg:5070
+  geom <- geometry %>%
+    st_transform(crs = 5070) %>% 
+    dplyr::select(GEOID)
+  
+  # read in the buffer function *** we will remove this but it's here for testing
+  source("utils/processingFunctions/bufferObjects.R")
+  
+  # running buffering process. 
+  b1 <- bufferObjects(bufferFeature = sp1, 
+                      geometry = geom, 
+                      dist = seq(250, 1000, by = 250),
+                      weight = c(1, 0.5, 0.2, 0.1)
+  )
+  
+  # select total score 
+  d3 <- d2 %>%
+    select(APCD_SITE_ID, total)
+  
+  # select the top score value only, combine with site score, and summarize
+  bufferFeature_scores <- b1 %>% 
+    arrange(desc(weight)) %>% # ensures highest score is kept
+    dplyr::distinct(GEOID, APCD_SITE_ID, .keep_all = TRUE) %>%
+    dplyr::left_join(y = d3, by = "APCD_SITE_ID")%>%
+    dplyr::mutate(value = weight * total)%>%
+    group_by(GEOID) %>% 
+    summarise(bufferFeature_score = sum(value, na.rm = TRUE)) %>%
+    as.data.frame() %>%
+    dplyr::select(GEOID, bufferFeature_score) 
+  
+  # join back to geometry object to get full list of features 
+  
+  
   
   ### attached GEOID to all points 
   geom <- geometry %>%
-    dplyr::select(GEOID)
-  sp1 <-  sp1 %>% 
-    sf::st_intersection(geom)
-  
-  ####
-  # currently this is just doing a direct intersect, we will want to change the method to match point buffer define in the cal enviroscreen process.
-  ###
-  
-  
-  ### attach and summarize haps score 
-  temp1 <- sp1 %>%
-    dplyr::left_join(d2, by = "APCD_SITE_ID")%>%
-    dplyr::group_by(GEOID)%>%
-    dplyr::summarize(sum(total))%>%
-    dplyr::rename(HAPS = `sum(total)`)%>%
+    dplyr::select(GEOID)%>%
+    dplyr::left_join(y = bufferFeature_scores,by = "GEOID")%>%
     as.data.frame()%>%
-    dplyr::select(GEOID, HAPS)
-  
-  return(temp1)
+    dplyr::select(GEOID, bufferFeature_score)
+
+  return(geom)
 }

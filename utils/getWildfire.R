@@ -9,15 +9,7 @@
 # dataset is available as interger values and classified product, using interger values 
 # 5) whp2020_cnt_conus.tif: continuous integer WHP index values for the conterminous United States, and 
 
-# #testing
-# library(dplyr)
-# library(tictoc)
-# library(terra)
-# options for faster extractions 
-#library(exactextractr)
-# install.packages("terra")
-# library(terra)
-# 
+
 # filePath <- "data/wildfire/Data/whp2020_GeoTIF/whp2020_cnt_conus.tif"
 # geometry <- sf::st_read("data/censusBlockGroup/coloradoCensusBlockGroups.geojson")
 # geometry <- sf::st_read("data/censusTract/coloradoCensusTracts.geojson")

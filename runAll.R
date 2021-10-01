@@ -5,8 +5,18 @@
 ### 
 
 # load required libraries 
-install.packages("pacman")
-pacman::p_load(tigris, dplyr, sf, stringr, tidyr, sp, tictoc, vroom, terra)
+# install.packages("pacman")
+pacman::p_load(tigris, # pulling spatial geometries
+               tidycensus, # pulling census data
+               dplyr, # data manipulation
+               sf, # processing vector spatial data 
+               stringr,# string manipulation
+               tictoc, # running processing time checks 
+               vroom, # loading large datasets
+               terra, # processing rasters 
+               tmap, #visualize spatial data
+               arcpullr # pull objects from ESRI REST api
+               )
 
 # source functions; this is verbose, so temp object is created then removed 
 ### if we can find a way to pass parameters to the source function within the lapply we can get around this. 

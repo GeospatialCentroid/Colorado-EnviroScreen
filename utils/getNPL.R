@@ -1,73 +1,68 @@
+###
+# process the NPL sites  
+# carverd@colostate.edu
+# 20210826
+###
 
-# Get superfund sites
 
-library(arcpullr)
-library(sf)
-library(dplyr)
+
+# ### testing
+# geometry <- sf::st_read("data/censusBlockGroup/coloradoCensusBlockGroups.geojson")
+# geometry <- sf::st_read("data/censusTract/coloradoCensusTracts.geojson")
+# geometry <- sf::st_read("data/county/coloradoCounties.geojson")
+# #
+# # library(tictoc)
+# tic()
+# d2 <- getNPL(geometry = geometry)
+# toc()
+# View(d2)
+
 
 
 getNPL <- function(geometry){
+  ### Takes in NPL sites and processes them 
+  # geometry : sf object representing spatial scale 
+  ###
+  
+  x <- c("sf","dplyr", "arcpullr")
+  lapply(x, require, character.only = TRUE)
+  
   
   #get data from arc server, fix geometry, and change to projected crs
   npl <-
     arcpullr::get_spatial_layer(url = "https://services3.arcgis.com/66aUo8zsujfVXRIT/arcgis/rest/services/CDPHE_Colorado_Superfund_NPL_NRD/FeatureServer/0") %>% 
     st_transform(crs = 5070) %>% 
     st_make_valid() 
-  
+  # reproject data to the espg:5070
   geom <- geometry %>%
     st_transform(crs = 5070) %>% 
     dplyr::select(GEOID)
-  
-  dist <- seq(250, 1000, by = 250)
-  weight <- c(1, 0.5, 0.2, 0.1)
-  intersect <- vector("list", length = length(dist))
-  
-  
-  for (i in 1:length(dist)) {
-    
-    b <- st_buffer(npl, dist[i]) %>% 
-      mutate(dist = dist[i], weight = weight[i])
-    
 
-    intersect[[i]] <- st_intersection(geom, b)
-    
-
-  }
+  # read in the buffer function *** we will remove this but it's here for testing
+  source("utils/processingFunctions/bufferObjects.R")
   
+  # running buffering process. 
+  b1 <- bufferObjects(bufferFeature = npl, 
+                      geometry = geom, 
+                      dist = seq(250, 1000, by = 250),
+                      weight = c(1, 0.5, 0.2, 0.1)
+                      )
   
-  #now combine into one df
-  intersect_all <- bind_rows(intersect)
-  
-  
-  #now need to refine to distinct geoID/npl ID pairs, BUT if geoID overlaps
-  # npl multiple times, take the HIGHEST weight, so arrange by weight first 
+  #now need to refine to distinct geoID/bufferFeature ID pairs, BUT if geoID overlaps
+  # bufferFeature multiple times, take the HIGHEST weight, so arrange by weight first 
   # (distinct keeps first row of duplicated columns)
   
-  npl_scores <- intersect_all %>% 
-    arrange(desc(weight)) %>% 
+  bufferFeature_scores <- b1 %>% 
+    arrange(desc(weight)) %>% # ensures highest score is kept
     dplyr::distinct(GEOID, FID, .keep_all = TRUE) %>% 
     group_by(GEOID) %>% 
-    summarise(npl_score = sum(weight, na.rm = TRUE)) %>%
+    summarise(bufferFeature_score = sum(weight, na.rm = TRUE)) %>%
     as.data.frame() %>%
     #right join so final dataset has all geoid, but non-intersects have NA
-    right_join(as.data.frame(geom), by = "GEOID") %>% 
-    dplyr::select(GEOID, npl_score) 
-   
+    right_join(as.data.frame(geometry), by = "GEOID") %>% 
+    dplyr::select(GEOID, bufferFeature_score) 
   
-  return(npl_scores)
-
-  
+  # output resulting df  
+  return(bufferFeature_scores)
   
 }
-
-
-#test function
-# 
-# geometry <- st_read("data/censusBlockGroup/coloradoCensusBlockGroups.geojson")
-# t <- Sys.time()
-# getNPL(geometry)
-# Sys.time() - t
-
-#county = 2.98 sec
-# tract = 5.25
-# block = 9.38
