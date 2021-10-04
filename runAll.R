@@ -15,115 +15,131 @@ pacman::p_load(tigris, # pulling spatial geometries
                vroom, # loading large datasets
                terra, # processing rasters 
                tmap, #visualize spatial data
-               arcpullr # pull objects from ESRI REST api
+               arcpullr, # pull objects from ESRI REST api,
+               purrr # joining and other itorative processes
+               
                )
 
 # source functions; this is verbose, so temp object is created then removed 
-### if we can find a way to pass parameters to the source function within the lapply we can get around this. 
-temp <- list.files("utils/", full.names = TRUE) %>% lapply(source)
-rm(temp)
-
-### download data 
-###  leave all relative paths as teminal "no '/'" this will be account for if a larger path is constructed 
+### if we can find a way to pass parameters to the source function within the 
+### lapply we can get around this. 
+functions <- list.files("utils/", full.names = TRUE,recursive = TRUE)
+for(i in seq_along(functions)){
+  print(i)
+  source(file = functions[i], echo = FALSE)
+}
+# download data 
+### leave all relative paths as teminal "no '/'" this will be account for if a 
+### larger path is constructed 
 pullGeometryDatasets(fileFolder = "data",
                      pullNewData = FALSE)
 
-### set processing level 
-# "censusBlockGroup", "censusTract", "county"
+# set processing level 
+### "censusBlockGroup", "censusTract", "county"
 processingLevel <- "county"
 # call in spatial object at give extent 
 geometry <- setSpatialData(dataFolder = "data/",scale = processingLevel)
 
-
-### call function that loops over all inputs data and processes the dataset. 
-
-### we might want to break this out by Component (exposures, effects, climate,  population, socioeconomic)
-
-### EJScreen data contributes to multiple components run it here then split out
+### EJScreen and ACS data contributes to multiple components run it here then split out
 ejscreen <- getEJScreen(filePath = "data/EJScreen/EJSCREEN_2020_StatePctile.csv",
                         geometry = geometry)
 
+acsData <- getACS(processingLevel = processingLevel, year = 2019)
 
 
 ####
 # Exposures
 ####
-### create the storage df that combines all features 
-exposures <- as.data.frame(geometry) %>% 
-  dplyr::select(GEOID)
+### Ozone,
+### PM2.5, 
+### Pre-1960 housing (lead risk), -ejscreen
+### Traffic proximity and volume (DOT 2017),-ejscreen
+### Diesel PM, -ejscreen
+### Air Toxics Emissions (Hazardous Air Pollutants or "HAPs"),
+### Other Criteria Pollutants (SOx, NOx, CO, PB, PM10),
+### Proximity to oil and gas facilities,
+### Drinking Water quality Public water system sample results,
+### Impaired surface waters,
+### Solar radiation,
+### Radon,
+### Other radiation exposure sources,
+### Groundwater vulnerability, Other remediation sites (non-Superfund),
+### Tree cover (alternate indicators: vegetation?, heat surface data?),
+### PFAS risk,
+### Permit violations Air and water violations
 
-#! probably want to call the processing of all this set of data as a function
-#! to keep this script clean 
+# grab datasets from the ejscreen 
+ej1 <- ejscreen %>%
+  dplyr::select("GEOID","leadPaint","deiselPM","trafficeProx")
 
 ### generate some data 
-d1 <- processHAPS(filePath = "data/haps/APENs 8_24_2021.csv",
-                  geometry = geometry)
-# join datasets 
-### consider writing this into function as GEOID will be consistent
-exposures <- dplyr::left_join(x = exposures, y = d1, by = "GEOID")
-
-
-
-
-
+envExposures <- enviromentalExposures(geometry = geometry, ejscreen = ej1)
 
 ####
 # Environmental Effects
 ####
-envEffect <- as.data.frame(geometry) %>% 
-  dplyr::select(GEOID)
+### includes 
+### Proximity to National Priorities List (NPL) sites, Proximity to Risk Management Plan (RMP) sites
+### Wastewater Discharge Indicator (Stream Proximity and Toxic Concentration),
+### Proximity to Hazardous Waste Facilities, Mining and smelter locations (historical, current),
+### Solid Waste facilities, Underground Injection Control (UIC) wells, 
+### Underground Storage Tanks & Leaking Underground Storage Tanks
+
 ####
 # Climate Impacts
 ####
-cliImapcts <-  as.data.frame(geometry) %>% 
-  dplyr::select(GEOID)
 
-# this one takes a long time... 
-wildfire <- getWildfile()
-
+### includes 
+### Wildfire risk, Flood plains, Projected heat days, Percent impervious surface,
+### Projected precipitation
 
 ####
 # Sensitive Populations
-#### 
-# gather and derive the social demographic elements from 
-# use character to describe the spatial scale at which data is gathered.
-#  
-acsData <- getACS(processingLevel = processingLevel, year = 2019)
+####
+
+### includes
+### Asthma hospitalization rate (CDPHE/CHA, 2013-2017),
+### Heart disease in adults (CDPHE/BRFSS 2014-2017),
+### Low weight birth rate (CDPHE - Vital Statistics,
+### 2013-2017, Housing Cost-Burdened Communities, 
+### life expectancy,
+### pregnancy, 
+
+
+
 
 asthma <- getAsthma(filePath = "data/asthma/Asthma_Hospitalization_Rate_(Census_Tracts).csv",
-                    geometry = geometry)
+                    geometry)
 
 heartDisease <- getHearthDisease(filePath = "data/heartDisease/Heart_Disease_in_Adults_-_CDPHE_Community_Level_Estimates_(Census_Tracts).csv",
-                                 geometry = geometry)
+                                 geometry)
 
 lowBirthWeight <- getLowBirthWeight(filePath = "data/lowWeightBirth/Low_Weight_Birth_Rate_(Census_Tracts).csv",
-                                    geometry = geometry)
+                                    geometry)
 
 lifeExpectany <- getLifeExpectancy(filePath = "data/U.S._Life_Expectancy_at_Birth_by_State_and_Census_Tract_-_2010-2015.csv",
-                                   geometry = geometry)
+                                   geometry)
 
 ####
 # Socioeconomic Factors
 ####
 
-acsData <- getACS(processingLevel = processingLevel,
-                  year = 2019)
+### includes 
+### Percent people of color,
+### Percent low income,
+### Percent linguistic isolation, 
+### Percent less than high school education,
+### Percent disability, Population under 5,
+### Population over 64, 
 
-
-
-####
-# Pollution and Climate Burden
-####
-pcb <- dplyr::bind_cols(exposures, envEffect, cliImapcts)
-
-####
-# Population Characteristics 
-####
-
-
-####
-# Environmental Health Score 
 ###
+# Stand alone map Elements 
+### 
+
+### includes 
+### Oil and gas community,
+### Coal power plant community,
+### urban/rural 
 
 
 

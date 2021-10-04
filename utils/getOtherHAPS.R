@@ -10,19 +10,17 @@
 # headers sox : site_so2_estim, nox : c(site_no2_estim, site_nox_estim), co : site_co_estim
 # pm10 : site_pm10_estim
 
-# #testing
-# library(dplyr)
-# library(tictoc)
+### testing
 ###
-filePath <- "data/haps/APENs 8_24_2021.csv"
+# filePath <- "data/haps/APENs 8_24_2021.csv"
 # geometry <- sf::st_read("data/censusBlockGroup/coloradoCensusBlockGroups.geojson")
 # geometry <- sf::st_read("data/censusTract/coloradoCensusTracts.geojson")
-geometry <- sf::st_read("data/county/coloradoCounties.geojson")
+# geometry <- sf::st_read("data/county/coloradoCounties.geojson")
 ### 
 
 
 
-processOtherHAPS <- function(filePath, geometry){
+getOtherHAPS <- function(filePath, geometry){
   ### Processes the HAPS dataset establishing a volume weighted score by geometry
   # filePath : relative path to csv of HAPS data
   # geometry : sf object of the census block group, census track, or county

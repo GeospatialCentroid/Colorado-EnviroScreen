@@ -37,6 +37,7 @@ getEJScreen <- function(filePath, geometry){
   # LINGISOPCT	% of households (interpreted as individuals) in linguistic isolation  -redundant
   # UNDER5PCT	% under age 5  - -redundant
   # OVER64PCT	% over age 64 - -redundant
+  ### environmental Exposures 
   # PRE1960PCT	% pre-1960 housing (lead paint indicator)
   # DSLPM	Diesel particulate matter level in air
   # PTRAF	Traffic proximity and volume

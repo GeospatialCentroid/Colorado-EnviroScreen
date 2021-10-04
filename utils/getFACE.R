@@ -4,13 +4,8 @@
 # 20210915
 ###
 
-library(dplyr)
-
 
 # #testing
-# library(sf)
-# library(dplyr)
-# library(stringr)
 # filePath <- "data/face/county_level_eads.csv"
 # filePath2 <- "data/face/FACE_results_population_scenarios1.csv"
 # geometry <- sf::st_read("data/censusBlockGroup/coloradoCensusBlockGroups.geojson")
@@ -24,8 +19,8 @@ library(dplyr)
 
 getFACE <- function(filePath, filePath2, geometry){
   ###
-  #
-  #
+  # filepath
+  # filepath2
   #
   ###
   x <- c("sf","dplyr", "stringr")
@@ -39,8 +34,7 @@ getFACE <- function(filePath, filePath2, geometry){
 
   # select features of interest
   d1 <- d1 %>%
-    # select features of interest
-    dplyr::select(GEOID = ï..GEOID.x,
+    dplyr::select(GEOID = "ï..GEOID.x",
            NAME,
            High, #population estimate in the high population growth scenario
            Drought_Crops=D_AG_CRO_C2_P3,
@@ -105,9 +99,9 @@ getFACE <- function(filePath, filePath2, geometry){
   }else{
     geom <- as.data.frame(geometry) %>%
       dplyr::mutate(GEO2 = stringr::str_sub(GEOID, 1,5))%>%
-      # dplyr::select(GEO2)%>%
       dplyr::left_join(y = op1, by = c("GEO2" = "GEOID"))%>%
       dplyr::select(names(op1))
     return(geom)
   }
 }
+

@@ -21,7 +21,7 @@
 # censusBlockgroup : 36 sec
 
 
-processHAPS <- function(filePath, geometry){
+getHAPS <- function(filePath, geometry){
   ### Processes the HAPS dataset establishing a volume weighted score by geometry
   # filePath : relative path to csv of HAPS data
   # geometry : sf object of the census block group, census track, or county

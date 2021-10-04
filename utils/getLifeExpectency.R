@@ -28,10 +28,9 @@ getLifeExpectancy <- function(filePath, geometry){
   
   g1 <- sf::st_read("data/county/coloradoCounties.geojson")
 
-  
   # read in data, filter to colorado, and separate county character column to facilitate join 
   d1 <- read.csv(filePath) %>%
-    dplyr::filter(ï..State == "Colorado" )%>%
+    dplyr::filter(`ï..State` == "Colorado" )%>%
     tidyr::separate(County, c("County", NA), sep = ",")%>%
     # join on the county geom feature to grab GEOID to complete future joins 
     dplyr::left_join(y = g1, by = c("County" = "NAMELSAD"))%>%
@@ -71,35 +70,5 @@ getLifeExpectancy <- function(filePath, geometry){
   return(geom)
   
 }
-
-
-
-
-
-
-
-
-#need to join to build full census tract geoid 
-d2 <- d1 %>%
-  dplyr::filter(ï..State == "Colorado" )%>%
-  tidyr::separate(County, c("count", NA), sep = ",")%>%
-  dplyr::left_join(y = geometry, by = c("count" = "NAMELSAD"))%>%
-  dplyr::select(count, Census.Tract.Number,Life.Expectancy,
-                GEOID)
-# read in census tract 
-geometry <- sf::st_read("data/censusTract/coloradoCensusTracts.geojson")%>%
-  dplyr::mutate(GEOID2 = stringr::str_sub(GEOID, 1,5),
-                NAME = as.numeric(NAME))
-
-head(geometry)
-d3 <- dplyr::left_join(d2, geometry, by= c("GEOID" = "GEOID2",
-                                           "Census.Tract.Number" = "NAME"))%>%
-  dplyr::select(GEOID = GEOID.y,
-                Life.Expectancy)
-
-
-# this is the standard dataformat
-
-
 
 
