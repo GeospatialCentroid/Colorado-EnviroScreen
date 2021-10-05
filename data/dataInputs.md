@@ -29,7 +29,7 @@
 | Environmental Exposures       | Other Criteria Pollutants (SOx, NOx, CO, PB, PM10)                        | 1         |1                 |          high   | APCD         |
 | Environmental Exposures       | Proximity to oil and gas facilities                                       | 1         |0                 |          high   | [COGCC](https://cogcc.state.co.us/data.html)         |
 | Environmental Exposures       | Drinking Water quality Public water system sample results                 |0          |0                 |          high   | [CDPHE](https://www.waterqualitydata.us/portal/)         |
-| Sensitive Populations         | Housing Cost-Burdened Communities                                         | 1         |0                 |          high   |          |
+| Sensitive Populations         | Housing Cost-Burdened Communities                                         | 1         |0                 |          high   | ACS         |
 | Mining and smelter locations  | Mining and smelter locations (historical, current)                        | 1         | 0                |          high   |          |
 | Misc. flag variables          | Urban/Rural                                                               | 1         | 0                |         medium  |          |
 | Sensitive populations         | Population under 5                                                        | 1         | 1                |         medium  | [ejscreen](https://www.epa.gov/ejscreen/overview-demographic-indicators-ejscreen) or [ACS](https://www.census.gov/programs-surveys/acs/data/summary-file.html)         |
