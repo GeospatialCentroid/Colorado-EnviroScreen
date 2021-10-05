@@ -22,7 +22,7 @@
 | Misc. flag variables          | Oil and gas community                                                     | 0         | 0                |         high    |          |
 | Misc. flag variables          | Coal power plant community                                                | 0         | 0                |         high    |          |
 | Climate                       | Wildfire risk                                                             | 1         | 1                |         high    |    [USFS](https://www.fs.usda.gov/rds/archive/Catalog/RDS-2015-0047-3)      |
-| Climate                       | Flood plains                                                              | 0         | 0                |         high    |          |
+| Climate                       | Flood plains                                                              | 0         | 0                |         high    | [CWCB](https://coloradohazardmapping.com/map) or [COGCC](https://geo.colorado.edu/catalog/47540-5ca228ffd43267000b8c7448)         |
 | Climate                       | Projected heat days                                                       | 0         |0                 |         high    |          |
 | Socioeconomic factors         | Percent disability                                                        | 0         |0                 |          high   |          |
 | Environmental Exposures       | Air Toxics Emissions (Hazardous Air Pollutants or "HAPs")                 | 1         |1                 |          high   |          |
