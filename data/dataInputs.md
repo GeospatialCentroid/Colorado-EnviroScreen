@@ -26,7 +26,7 @@
 | Climate                       | Projected heat days                                                       | 0         |0                 |         high    |          |
 | Socioeconomic factors         | Percent disability                                                        | 0         |0                 |          high   |          |
 | Environmental Exposures       | Air Toxics Emissions (Hazardous Air Pollutants or "HAPs")                 | 1         |1                 |          high   |  NATA        |
-| Environmental Exposures       | Other Criteria Pollutants (SOx, NOx, CO, PB, PM10)                        | 1         |1                 |          high   |          |
+| Environmental Exposures       | Other Criteria Pollutants (SOx, NOx, CO, PB, PM10)                        | 1         |1                 |          high   | APCD         |
 | Environmental Exposures       | Proximity to oil and gas facilities                                       | 1         |0                 |          high   | [COGCC](https://cogcc.state.co.us/data.html)         |
 | Environmental Exposures       | Drinking Water quality Public water system sample results                 |0          |0                 |          high   | [CDPHE](https://www.waterqualitydata.us/portal/)         |
 | Sensitive Populations         | Housing Cost-Burdened Communities                                         | 1         |0                 |          high   |          |
