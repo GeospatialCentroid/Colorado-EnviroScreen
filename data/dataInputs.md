@@ -35,7 +35,7 @@
 | Sensitive populations         | Population under 5                                                        | 1         | 1                |         medium  | [ejscreen](https://www.epa.gov/ejscreen/overview-demographic-indicators-ejscreen) or [ACS](https://www.census.gov/programs-surveys/acs/data/summary-file.html)         |
 | Environmental Exposures       | Impaired surface waters                                                   |0          |0                 |          medium |          |
 | Sensitive populations         | Population over 64                                                        | 1         | 1                |         medium  | [ejscreen](https://www.epa.gov/ejscreen/overview-demographic-indicators-ejscreen) or [ACS](https://www.census.gov/programs-surveys/acs/data/summary-file.html)         |
-| Environmental Exposures       | Solar radiation                                                           |0          |0                 |          medium |          |
+| Environmental Exposures       | Solar radiation                                                           |0          |0                 |          medium | [NREL](https://nsrdb.nrel.gov/)         |
 | Environmental Exposures       | Radon                                                                     |0          |0                 |          medium |          |
 | Environmental Exposures       | Other radiation exposure sources                                          | 0         | 0                |          medium |          |
 | Environmental Exposures       | Groundwater vulnerability                                                 |0          |0                 |          medium |          |
