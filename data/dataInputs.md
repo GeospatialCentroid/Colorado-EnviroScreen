@@ -27,7 +27,7 @@
 | Socioeconomic factors         | Percent disability                                                        | 0         |0                 |          high   |          |
 | Environmental Exposures       | Air Toxics Emissions (Hazardous Air Pollutants or "HAPs")                 | 1         |1                 |          high   |  NATA        |
 | Environmental Exposures       | Other Criteria Pollutants (SOx, NOx, CO, PB, PM10)                        | 1         |1                 |          high   |          |
-| Environmental Exposures       | Proximity to oil and gas facilities                                       | 1         |0                 |          high   |          |
+| Environmental Exposures       | Proximity to oil and gas facilities                                       | 1         |0                 |          high   | [COGCC](https://cogcc.state.co.us/data.html)         |
 | Environmental Exposures       | Drinking Water quality Public water system sample results                 |0          |0                 |          high   |          |
 | Sensitive Populations         | Housing Cost-Burdened Communities                                         | 1         |0                 |          high   |          |
 | Mining and smelter locations  | Mining and smelter locations (historical, current)                        | 1         | 0                |          high   |          |
