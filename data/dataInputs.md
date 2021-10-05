@@ -25,7 +25,7 @@
 | Climate                       | Flood plains                                                              | 0         | 0                |         high    | [CWCB](https://coloradohazardmapping.com/map) or [COGCC](https://geo.colorado.edu/catalog/47540-5ca228ffd43267000b8c7448)         |
 | Climate                       | Projected heat days                                                       | 0         |0                 |         high    |          |
 | Socioeconomic factors         | Percent disability                                                        | 0         |0                 |          high   |          |
-| Environmental Exposures       | Air Toxics Emissions (Hazardous Air Pollutants or "HAPs")                 | 1         |1                 |          high   |          |
+| Environmental Exposures       | Air Toxics Emissions (Hazardous Air Pollutants or "HAPs")                 | 1         |1                 |          high   |  NATA        |
 | Environmental Exposures       | Other Criteria Pollutants (SOx, NOx, CO, PB, PM10)                        | 1         |1                 |          high   |          |
 | Environmental Exposures       | Proximity to oil and gas facilities                                       | 1         |0                 |          high   |          |
 | Environmental Exposures       | Drinking Water quality Public water system sample results                 |0          |0                 |          high   |          |
