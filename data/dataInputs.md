@@ -43,7 +43,7 @@
 | Environmental Effect          | Solid Waste facilities                                                    | 0         | 0                |          medium |          |
 | Environmental Exposures       | Other remediation sites (non-Superfund)                                   |0          |0                 |          medium |          |
 | Environmental Exposures       | Tree cover (alternate indicators: vegetation?, heat surface data?)        | 1         | 0                |          medium |          |
-| Sensitive Populations         | life expectancy                                                           | 1         | 1                |          medium |          |
+| Sensitive Populations         | life expectancy                                                           | 1         | 1                |          medium | [CDPHE](https://data-cdphe.opendata.arcgis.com/datasets/colorado-life-expectancy-by-census-tract-published-by-naphsis-usaleep-2010-2015/explore?location=38.997900%2C-105.550600%2C7.96)         |
 | Sensitive Populations         | pregnancy                                                                 | 0         | 0                |          medium |          |
 | Environmental Exposures       | PFAS risk                                                                 |0          |0                 |          low    |          |
 | Climate                       | Projected precipitation                                                   |0          |0                 |          low    |          |
