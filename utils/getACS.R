@@ -64,7 +64,10 @@ getACS <- function(processingLevel, year ){
         "B15002_001",
         paste0("B15002_00", 3:9),
         "B15002_010",
-        paste0("B15002_0", 20:27)
+        paste0("B15002_0", 20:27),
+        #Percent disability
+        paste0("B18101_", c("001","004","007","010","013","016","019","023",
+                            "026","029","032","035","038"))
       ),
     state = "08",
     year = year
@@ -114,9 +117,15 @@ getACS <- function(processingLevel, year ){
             B15002_026,
             B15002_027
           ) / B15002_001
-        )
+        ),
+        percent_disability = sum(B18101_004, B18101_007,
+                                 B18101_010, B18101_013,
+                                 B18101_016, B18101_019,
+                                 B18101_023, B18101_026,
+                                 B18101_029, B18101_032,
+                                 B18101_035, B18101_038) / B18101_001
       ) %>%
       dplyr::select(GEOID, age_under5, age_over64, percent_minority, percent_lowincome,
-             percent_lingiso, percent_lths)
+             percent_lingiso, percent_lths, percent_disability)
 
 }
