@@ -7,6 +7,10 @@
 # path for testing the function 
 # filePath <- "data/epa_cmaq/2017_ozone_daily_8hour_maximum.txt"
 # geometry <- sf::st_read("data/county/coloradoCounties.geojson")
+# geometry <- sf::st_read("data/censusBlockGroup/coloradoCensusBlockGroups.geojson")
+# geometry <- sf::st_read("data/censusTract/coloradoCensusTracts.geojson")
+# geometry <- sf::st_read("data/county/coloradoCounties.geojson")
+### 
 
 
 getOzone <- function(filePath, geometry){

@@ -6,8 +6,8 @@
 
 
 ### testing
-# filePath <- "data/haps/APENs 8_24_2021.csv"
-# geometry <- sf::st_read("data/censusBlockGroup/coloradoCensusBlockGroups.geojson")
+ filePath <- "data/haps/APENs 8_24_2021.csv"
+ geometry <- sf::st_read("data/censusBlockGroup/coloradoCensusBlockGroups.geojson")
 # geometry <- sf::st_read("data/censusTract/coloradoCensusTracts.geojson")
 # geometry <- sf::st_read("data/county/coloradoCounties.geojson")
 # #

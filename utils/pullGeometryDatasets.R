@@ -65,7 +65,7 @@ pullGeometryDatasets <- function(fileFolder, pullNewData){
   if(!file.exists(paste0(path2,"/coloradoCounties.geojson")) | overwrite == TRUE){
       
     # Counties within the state of Colorado 
-    counties <- tigris::counties(state = fips)
+    counties <- tigris::counties(state = fips, year = 2019)
     # write out spatial data
     sf::st_write(obj = counties,
                  dsn = paste0(path2,"/coloradoCounties.geojson"),
@@ -86,7 +86,7 @@ pullGeometryDatasets <- function(fileFolder, pullNewData){
   cat("Downloading and saving census tract level spatial data")
   if(!file.exists(paste0(path3,"/coloradoCensusTracts.geojson")) | overwrite == TRUE){
     # Census Tracts within the state of Colorado 
-    tracts <- tigris::tracts(state = fips)
+    tracts <- tigris::tracts(state = fips, year = 2019)
     # writing census tract data 
     sf::st_write(obj = tracts,
                  dsn = paste0(path3,"/coloradoCensusTracts.geojson"),
@@ -109,7 +109,7 @@ pullGeometryDatasets <- function(fileFolder, pullNewData){
   cat("Downloading and saving census block group level spatial data")
   if(!file.exists(paste0(path4,"/coloradoCensusBlockGroups.geojson")) | overwrite == TRUE){
     # census block groups within the state of Colorado 
-    blockGroups <- tigris::block_groups(state = fips)
+    blockGroups <- tigris::block_groups(state = fips, year = 2019)
     sf::st_write(obj = blockGroups,
                  dsn = paste0(path4,"/coloradoCensusBlockGroups.geojson"),
                  drive = "GeoJSON",
