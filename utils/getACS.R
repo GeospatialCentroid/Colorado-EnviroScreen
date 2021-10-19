@@ -22,7 +22,7 @@ getACS <- function(processingLevel, year ){
   x <- c("tidycensus","dplyr","tidyr")
   lapply(x, require, character.only = TRUE)
   # call census api key
-  getCensusAPIKey()
+  # getCensusAPIKey()
   #### potential for some conditional testing here, but this is getting
   #### more complicated then it really needs to be... so something to
   #### come back too.

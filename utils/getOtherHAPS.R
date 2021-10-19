@@ -81,7 +81,7 @@ getOtherHAPS <- function(filePath, geometry){
     dplyr::summarize(sum(total))%>%
     dplyr::rename(HAPS = `sum(total)`)%>%
     as.data.frame()%>%
-    dplyr::select(GEOID, HAPS)
+    dplyr::select(GEOID, HAPS_Other = HAPS)
   
   return(temp1)
 }

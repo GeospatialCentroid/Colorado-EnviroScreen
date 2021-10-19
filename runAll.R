@@ -17,7 +17,6 @@ pacman::p_load(tigris, # pulling spatial geometries
                tmap, #visualize spatial data
                arcpullr, # pull objects from ESRI REST api,
                purrr # joining and other iterative processes
-               
                )
 
 # source functions; this is verbose, so temp object is created then removed 
@@ -46,7 +45,8 @@ ejscreen <- getEJScreen(filePath = "data/EJScreen/EJSCREEN_2020_StatePctile.csv"
 
 acsData <- getACS(processingLevel = processingLevel, year = 2019)
 
-### ensure that the DI community is 
+### ensure that the DI community is created
+getDI(overWrite = FALSE)
 
 ####
 # Exposures
@@ -69,22 +69,27 @@ acsData <- getACS(processingLevel = processingLevel, year = 2019)
 ### PFAS risk,
 ### Permit violations Air and water violations
 
-# grab datasets from the ejscreen 
-ej1 <- ejscreen %>%
-  dplyr::select("GEOID","leadPaint","deiselPM","trafficeProx")
+### compile all available data 
+tic()
+envExposures <- enviromentalExposures(geometry = geometry, ejscreen = ejscreen)
+toc()
 
-### generate some data 
-envExposures <- enviromentalExposures(geometry = geometry, ejscreen = ej1)
 
 ####
 # Environmental Effects
 ####
 ### includes 
-### Proximity to National Priorities List (NPL) sites, Proximity to Risk Management Plan (RMP) sites
+### Proximity to National Priorities List (NPL) sites, 
+### Proximity to Risk Management Plan (RMP) sites
 ### Wastewater Discharge Indicator (Stream Proximity and Toxic Concentration),
-### Proximity to Hazardous Waste Facilities, Mining and smelter locations (historical, current),
+### Proximity to Hazardous Waste Facilities,
+### Mining and smelter locations (historical, current),
 ### Solid Waste facilities, Underground Injection Control (UIC) wells, 
 ### Underground Storage Tanks & Leaking Underground Storage Tanks
+
+tic()
+envEffects <- enviromentalEffects(geometry = geometry, ejscreen = ejscreen)
+toc()
 
 ####
 # Climate Impacts
@@ -93,6 +98,10 @@ envExposures <- enviromentalExposures(geometry = geometry, ejscreen = ej1)
 ### includes 
 ### Wildfire risk, Flood plains, Projected heat days, Percent impervious surface,
 ### Projected precipitation
+tic()
+climate <- climate(geometry)
+toc()
+
 
 ####
 # Sensitive Populations
@@ -106,20 +115,10 @@ envExposures <- enviromentalExposures(geometry = geometry, ejscreen = ej1)
 ### life expectancy,
 ### pregnancy, 
 
+tic()
+senPop <- sensitivePopulations(geometry = geometry, ejscreen = ejscreen)
+toc()
 
-
-
-asthma <- getAsthma(filePath = "data/asthma/Asthma_Hospitalization_Rate_(Census_Tracts).csv",
-                    geometry)
-
-heartDisease <- getHearthDisease(filePath = "data/heartDisease/Heart_Disease_in_Adults_-_CDPHE_Community_Level_Estimates_(Census_Tracts).csv",
-                                 geometry)
-
-lowBirthWeight <- getLowBirthWeight(filePath = "data/lowWeightBirth/Low_Weight_Birth_Rate_(Census_Tracts).csv",
-                                    geometry)
-
-lifeExpectany <- getLifeExpectancy(filePath = "data/U.S._Life_Expectancy_at_Birth_by_State_and_Census_Tract_-_2010-2015.csv",
-                                   geometry)
 
 ####
 # Socioeconomic Factors
@@ -130,8 +129,10 @@ lifeExpectany <- getLifeExpectancy(filePath = "data/U.S._Life_Expectancy_at_Birt
 ### Percent low income,
 ### Percent linguistic isolation, 
 ### Percent less than high school education,
-### Percent disability, Population under 5,
-### Population over 64, 
+### Percent disability,
+
+
+
 
 ###
 # Stand alone map Elements 
