@@ -9,7 +9,8 @@ library(dplyr)
 library(plotly)
 
 d1 <- st_read("E:/geoSpatialCentroid/coEnvrioScreen/src/Colorado-EnviroScreen/data/waterQuality/colorado_ecoli_wqp.csv", 
-              options=c("X_POSSIBLE_NAMES=long","Y_POSSIBLE_NAMES=lat"))
+              options=c("X_POSSIBLE_NAMES=long","Y_POSSIBLE_NAMES=lat"))%>%
+  st_set_crs(4326)
   
 
 nSites <- length(unique(d1$SiteID))
@@ -31,8 +32,15 @@ uniqueSites <- d1 %>%
 tmap_mode("view")
 
 tm_shape(uniqueSites)+
-  tm_dots(col = "ecoli2", popup.vars = c("SiteID","Date","value"))
+  tm_dots(col = "ecoliConcern", popup.vars = c("SiteID","Date","value"))
 
-plot_ly(uniqueSites, 
-        x = Date, 
-        y = ~value )
+hist1 <- uniqueSites %>%
+  tidyr::separate(col = Date, sep = "-",into = c("year","month","day"))%>%
+  dplyr::group_by(year)%>%
+  dplyr::summarise(count = n())%>%
+  as.data.frame()%>%
+  dplyr::select(-geometry)
+
+plot_ly(data = hist1$year,
+         type = "histogram")
+  

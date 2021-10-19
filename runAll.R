@@ -16,7 +16,7 @@ pacman::p_load(tigris, # pulling spatial geometries
                terra, # processing rasters 
                tmap, #visualize spatial data
                arcpullr, # pull objects from ESRI REST api,
-               purrr # joining and other itorative processes
+               purrr # joining and other iterative processes
                
                )
 
@@ -46,6 +46,7 @@ ejscreen <- getEJScreen(filePath = "data/EJScreen/EJSCREEN_2020_StatePctile.csv"
 
 acsData <- getACS(processingLevel = processingLevel, year = 2019)
 
+### ensure that the DI community is 
 
 ####
 # Exposures
