@@ -15,8 +15,18 @@ enviromentalEffects <- function(geometry, ejscreen){
   d1 <- ejscreen %>%
     dplyr::select("GEOID","waterDischarge","nplProx","rmpProx","tsdfProx")
   ## addataional elements needed 
+  index <- length(names(d1))-1
   
   dataframes <- list(d1)
-  df <- joinDataFrames(componentName = "Environmental_Effects", dataframes)
+  df <- joinDataFrames(componentName = "Environmental_Effects", dataframes)%>%
+    dplyr::mutate(
+      across(where(is.numeric),
+             .fns = list(pcntl = ~ifelse(is.na(.), 0, cume_dist(.)*100)),
+             .names = "{col}_{fn}")
+    )
+  # determine the average value across all features 
+  df$envEff <- rowMeans(df[,((index+3):(index*2 + 2))])
+  df <- df %>%
+    dplyr::select(-component)
   return(df)
 }

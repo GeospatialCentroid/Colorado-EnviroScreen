@@ -35,15 +35,17 @@ pullGeometryDatasets(fileFolder = "data",
 
 # set processing level 
 ### "censusBlockGroup", "censusTract", "county"
-processingLevel <- "county"
+processingLevel <- "censusTract"
 # call in spatial object at give extent 
 geometry <- setSpatialData(dataFolder = "data/",scale = processingLevel)
 
 ### EJScreen and ACS data contributes to multiple components run it here then split out
 ejscreen <- getEJScreen(filePath = "data/EJScreen/EJSCREEN_2020_StatePctile.csv",
                         geometry = geometry)
+### add condition to test for the existence of a specific file based on geom
 
 acsData <- getACS(processingLevel = processingLevel, year = 2019)
+### add condition to test for the existence of a specific file based on geom
 
 ### ensure that the DI community is created
 getDI(overWrite = FALSE)
@@ -99,7 +101,7 @@ toc()
 ### Wildfire risk, Flood plains, Projected heat days, Percent impervious surface,
 ### Projected precipitation
 tic()
-climate <- climate(geometry)
+climateData <- climate(geometry)
 toc()
 
 
@@ -131,8 +133,29 @@ toc()
 ### Percent less than high school education,
 ### Percent disability,
 
+tic()
+socEco <- socioEconomicFactors(geometry,ejscreen, acsData)
+toc()
 
+# merge all datasets on geoid
+# apply function across all features 
+dataframes <- list(envExposures,envEffects,climateData,senPop,socEco)
+df <- joinDataFrames(componentName = "all", dataframes = dataframes)%>%
+  dplyr::select(-component)
 
+### 
+# generate the component scores  
+### 
+df <- df %>%
+  dplyr::mutate(
+    pollClimBurden =  (envExp + envEff/2 + climate/2)/2,
+    pollClimBurden_Pctl = percent_rank(pollClimBurden) *100,
+    popCharacteristic = (senPop + socEco)/2,
+    popCharacteristic_Pctl = percent_rank(popCharacteristic) *100,
+    finalScore = (pollClimBurden + popCharacteristic),
+    finalScore_Pctl = percent_rank(finalScore) *100
+  )
+write.csv(df, file = paste0("data/envScreenScores/",processingLevel,".csv"))
 
 ###
 # Stand alone map Elements 
