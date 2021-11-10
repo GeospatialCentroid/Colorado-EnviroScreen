@@ -12,11 +12,14 @@
 
 
 
-getDI <- function(overWrite){
+getDI <- function(overWrite = FALSE){
   # overWrite defines if you want to force the file to be recreated. 
   
-  file <- "data/diCommunities/diCommunities.shp"
-  if(!file.exists(file) | overWrite == TRUE){
+  pathToData <- "data/diCommunities/diCommunities.shp"
+  
+  if(file.exists(pathToData) & overWrite == FALSE){
+    return(paste0("The DI community spatial data exists and can be found ", pathToData))
+  }else{
     bg_co <- get_acs(geography = "block group",
                      variables = c("B01001_001", # total pop, age&sex
                                    "C17002_001", # total pop whose income to poverty ratio was determined
@@ -76,16 +79,14 @@ getDI <- function(overWrite){
           TRUE ~ 0
         )
       )
-  
+    
     # read in geometry for census block groups 
     geom <- sf::st_read("data/censusBlockGroup/coloradoCensusBlockGroups.geojson")%>%
       dplyr::select(GEOID)%>%
       dplyr::left_join(bg_co, by = "GEOID")
-  #write feature
+    #write feature
     sf::st_write(obj = geom, dsn = file,delete_dsn = TRUE)  
-  return(paste0("The DI community spatial data was writen ", file))  
-  }else{
-    return(paste0("The DI community spatial data exists and can be found ", file))
+    return(paste0("The DI community spatial data was writen ", file))   
   }
 }
 

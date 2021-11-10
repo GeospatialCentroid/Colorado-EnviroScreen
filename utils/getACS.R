@@ -13,7 +13,7 @@
 
 #'geometry' is one of "block group", "tract", or "county"
 
-getACS <- function(processingLevel, year ){
+getACS <- function(processingLevel, year , overwrite = FALSE){
   ###
   # Workflow pulled from the EPA ejscreen methodology
   # geometry = character descirbing the spatial extent
@@ -26,22 +26,28 @@ getACS <- function(processingLevel, year ){
   #### potential for some conditional testing here, but this is getting
   #### more complicated then it really needs to be... so something to
   #### come back too.
-
-  # change the geometry character to match requirements in tidy census
-  if(processingLevel == "censusBlockGroup"){
-    processingLevel <- "block group"
-  }
-  if(processingLevel == "county"){
-    processingLevel <- "county"
-  }
-  if(processingLevel == "censusTract"){
-    processingLevel <- "tract"
-  }
-
-  # pull ACS data
-  acs <- tidycensus::get_acs(
-    geography = processingLevel,
-    variables = c(
+  
+  pathToData <- paste0("data/acs/acs_",processingLevel,".csv")
+  
+  if(file.exists(pathToData) & overwrite == FALSE){
+    acs <- read.csv(pathToData)
+    return(acs)
+  }else{
+    # change the geometry character to match requirements in tidy census
+    if(processingLevel == "censusBlockGroup"){
+      processingLevel <- "block group"
+    }
+    if(processingLevel == "county"){
+      processingLevel <- "county"
+    }
+    if(processingLevel == "censusTract"){
+      processingLevel <- "tract"
+    }
+    
+    # pull ACS data
+    acs <- tidycensus::get_acs(
+      geography = processingLevel,
+      variables = c(
         # under 5
         "B01001_003",
         "B01001_027",
@@ -69,19 +75,19 @@ getACS <- function(processingLevel, year ){
         paste0("B18101_", c("001","004","007","010","013","016","019","023",
                             "026","029","032","035","038"))
       ),
-    state = "08",
-    year = year
-  )
-
-
-
-  # NOTE, for those where total pop/known pop is '0' I change to NA. EJ Screen
-  # would set these to '0' but in some cases '0' was actually a meaningful
-  # number (i.e., 0 people of color)
-
-
-    acs %>% tidyr::spread(key = variable, value = estimate) %>%
-
+      state = "08",
+      year = year
+    )
+    
+    
+    
+    # NOTE, for those where total pop/known pop is '0' I change to NA. EJ Screen
+    # would set these to '0' but in some cases '0' was actually a meaningful
+    # number (i.e., 0 people of color)
+    
+    
+    acs <- acs %>% 
+      tidyr::spread(key = variable, value = estimate) %>%
       dplyr::group_by(GEOID) %>%
       dplyr::summarize(across(contains("_"), ~ sum(.x, na.rm = TRUE))) %>%
       dplyr::group_by(GEOID) %>% # not sure why.. but had to group_by a second time to get correct calculations
@@ -126,6 +132,8 @@ getACS <- function(processingLevel, year ){
                                  B18101_035, B18101_038) / B18101_001
       ) %>%
       dplyr::select(GEOID, age_under5, age_over64, percent_minority, percent_lowincome,
-             percent_lingiso, percent_lths, percent_disability)
-
+                    percent_lingiso, percent_lths, percent_disability)
+    write.csv(x = acs, file = pathToData)
+    return(acs)
+  }
 }

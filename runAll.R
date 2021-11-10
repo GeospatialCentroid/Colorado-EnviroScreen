@@ -16,7 +16,9 @@ pacman::p_load(tigris, # pulling spatial geometries
                terra, # processing rasters 
                tmap, #visualize spatial data
                arcpullr, # pull objects from ESRI REST api,
-               purrr # joining and other iterative processes
+               purrr, # joining and other iterative processes
+               leaflet, # mapping features
+               leaflet.extras # search functionality 
                )
 
 # source functions; this is verbose, so temp object is created then removed 
@@ -35,7 +37,7 @@ pullGeometryDatasets(fileFolder = "data",
 
 # set processing level 
 ### "censusBlockGroup", "censusTract", "county"
-processingLevel <- "censusTract"
+processingLevel <- "county"
 # call in spatial object at give extent 
 geometry <- setSpatialData(dataFolder = "data/",scale = processingLevel)
 
@@ -47,8 +49,6 @@ ejscreen <- getEJScreen(filePath = "data/EJScreen/EJSCREEN_2020_StatePctile.csv"
 acsData <- getACS(processingLevel = processingLevel, year = 2019)
 ### add condition to test for the existence of a specific file based on geom
 
-### ensure that the DI community is created
-getDI(overWrite = FALSE)
 
 ####
 # Exposures
@@ -156,16 +156,20 @@ df <- df %>%
     finalScore_Pctl = percent_rank(finalScore) *100
   )
 write.csv(df, file = paste0("data/envScreenScores/",processingLevel,".csv"))
+save(df, file = paste0("data/envScreenScores/",processingLevel,".RData"))
 
 ###
 # Stand alone map Elements 
 ### 
 
 ### includes 
+### DI communities 
+getDI()
 ### Oil and gas community,
 ### Coal power plant community,
-### urban/rural 
 
+### urban/rural 
+getTotalPop(geometry)
 
 
 
