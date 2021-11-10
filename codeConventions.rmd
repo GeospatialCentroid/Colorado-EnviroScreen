@@ -70,6 +70,19 @@ lapply(x, require, character.only = TRUE)
 ```
 This should not be necessary for the final product but will be helpful during the development
 
+Functions that write/read datasets should include an overWrite parameter. By default this parameter should be set to false. Changing to true would recreate the output dataset. 
+
+```{r}
+getEJScreen <- function(filePath, geometry, overWrite=FALSE){
+  # example 
+  pathToData <- paste0("data/EJScreen/ejscreen_",processingLevel,".csv")
+  if(file.exists(pathToData) & overWrite == FALSE){
+    geom <- read.csv(pathToData0)
+    return(geom)
+  }else{
+  # generate dataset 
+  }
+
 **outputs**
 
 restrict output to dataframe with two columns, GEOID and values of interest:
