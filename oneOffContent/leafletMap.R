@@ -18,79 +18,39 @@ geom <- geometry %>%
   dplyr::select("GEOID","NAME") %>%
   dplyr::left_join(y = d1, by = "GEOID")
 
+### temp features for testing 
+geom$coalCommunity <- rbinom(nrow(geometry), 1, 0.5)
+geom$oilCommunity <- rbinom(nrow(geometry), 1, 0.5)
+geom$rural <- rbinom(nrow(geometry), 1, 0.5)
 
-# map parameters/inputs  
-## purple low green high
-colorRamp <- c(
-  "#40004b","#762a83","#9970ab","#c2a5cf","#e7d4e8","#d9f0d3",
-  "#a6dba0","#5aae61","#1b7837","#00441b"
-)
 # purple high
-colorRamp2 <- c(
+colorRamp <- c(
   "#00441b","#1b7837","#5aae61","#a6dba0","#d9f0d3","#e7d4e8",
   "#c2a5cf","#9970ab","#762a83","#40004b"
 )
 
 
-# example with hard coded indicator value 
-
-pal <- colorNumeric(
-  palette = colorRamp,
-  domain = geom$pm25_pcntl
-  #reverse = FALSE
-)
-
-
-# for the popups we need to construct the specific features as a color in the 
-# data frame 
-geom <- geom %>% 
-  dplyr::mutate(
-    popup = paste0(
-      "<b>", paste0(NAME," County"),"</b>",
-      "<br/><i>", "pm25","</i>",
-      "<br/><b>Measured:</b> ", pm25,
-      "<br/><b>Percentile:</b> ", pm25_pcntl
-    )
-  )
-
-# leaftlet map 
-m <- leaflet(data = geom)%>%
-  addTiles()%>%
-  addPolygons( 
-    color = "#454547",
-    weight = 1,
-    smoothFactor = 0.5,
-    opacity = 1.0, fillOpacity = 0.5,
-    fillColor =  ~pal(pm25_pcntl),
-    highlightOptions = highlightOptions(color = "white",
-                                        weight = 2,
-                                        bringToFront = TRUE),
-    popup = ~popup)%>%
-  addLegend("bottomright",
-            pal = pal,
-            values = ~pm25_pcntl,
-            title = "Est. Values",
-            opacity = 1
-            ### this flips legend values to desending which I want, but 
-            ### having trouble getting the color palette to follow. 
-            #labFormat = labelFormat(transform = function(x) sort(x, decreasing = TRUE))
-  )%>%
-  leaflet.extras::addSearchOSM()
-m
-
 
 #### in the app we need the variable and the 
-
-mapMake <- function(inputVar, raw){
+geom <- geom
+inputVar <- "pm25"
+raw <- FALSE
+mapMake <- function(geom, inputVar, raw){
   ###
   # inputVar : a text value representing the varible to be displayed
   # raw : reactive element to change display visualization on map. Raw or pnctl
   ### 
+  # purple high
+  colorRamp <- c(
+    "#00441b","#1b7837","#5aae61","#a6dba0","#d9f0d3","#e7d4e8",
+    "#c2a5cf","#9970ab","#762a83","#40004b"
+  )
   
   # define the indicator from user input
   # need these variables for legend creation
   indicator1 <- inputVar # basically a text value 
   indicator2 <- paste0(indicator1,"_pcntl")
+  
   # condition for determining to visual raw data or percentile 
   if(raw == TRUE){
     indicator <- indicator1
@@ -98,51 +58,101 @@ mapMake <- function(inputVar, raw){
     indicator <- indicator2
   }
   # grab unique values
-  vals <- geom %>%select(indicator)%>%sf::st_drop_geometry()
+  vals <- geom %>%select(indicator)%>%sf::st_drop_geometry() %>% pull()
   
-  pal <- colorNumeric(
+  # palette for the map 
+  palMap <- colorNumeric(
     palette = colorRamp,
-    domain = vals  # need something comparable to geom$varName
-    #reverse = FALSE  # experiement for descending legend 
+    domain = vals,  
+    reverse = FALSE 
   )
-  
-  
-  # for the popups we need to construct the specific features as a color in the 
-  # data frame 
-  
-  
+  #palette for the legend 
+  palLen <- colorNumeric(
+    palette = colorRamp,
+    domain = vals,  
+    reverse = TRUE
+  )
+  # binary palette
+  palBin <-  colorFactor(palette = c("black", NA), 
+                         levels = c("1", "0"))
+  # generate popup information
   geom <- geom %>% 
     dplyr::mutate(
       popup = paste0(
         "<b>", paste0(NAME," County"),"</b>",
         "<br/><i>", as.character(indicator),"</i>", # needs to be text
-        "<br/><b>Measured:</b> ", `indicator1`, # needs to value
-        "<br/><b>Percentile:</b> ", `indicator2` # needs to be value 
+        "<br/><b>Measured:</b> ", !!as.symbol(indicator1),
+        "<br/><b>Percentile:</b> ", !!as.symbol(indicator2),
+        "<br/><b>Coal Community:</b> ", coalCommunity,
+        "<br/><b>Rural:</b> ", oilCommunity,
+        "<br/><b>Oil Community:</b> ", rural# needs to be value 
       )
     )
+  
   # leaftlet map 
   m <- leaflet(data = geom)%>%
     addTiles()%>%
+    addMapPane("index", zIndex = 420)%>%
+    addMapPane("binary", zIndex = 410)%>%
+    addPolygons(
+      color = NA,
+      weight = 1,
+      smoothFactor = 0.5,
+      opacity = 0.7, 
+      fillOpacity = 0.2,
+      fillColor =  palBin(geom$coalCommunity),
+      group = "Coal Community",
+      options = pathOptions(pane = "binary")
+    )%>%
+    addPolygons(
+      color = NA,
+      weight = 1,
+      smoothFactor = 0.5,
+      opacity = 0.7, 
+      fillOpacity = 0.2,
+      fillColor =  palBin(geom$oilCommunity),
+      group = "Oil Community",
+      options = pathOptions(pane = "binary")
+    )%>%
+    addPolygons(
+      color = NA,
+      weight = 1,
+      smoothFactor = 0.5,
+      opacity = 0.7, 
+      fillOpacity = 0.2,
+      fillColor =  palBin(geom$rural),
+      group = "Rural",
+      options = pathOptions(pane = "binary")
+    )%>%
     addPolygons( 
       color = "#454547",
       weight = 1,
       smoothFactor = 0.5,
       opacity = 1.0, fillOpacity = 0.5,
-      fillColor =  ~pal(indicator),
+      fillColor =  ~palMap(vals),
       highlightOptions = highlightOptions(color = "white",
                                           weight = 2,
                                           bringToFront = TRUE),
-      popup = ~popup) %>%
+      popup = ~popup,
+      group = "Indicator Score",
+      options = pathOptions(pane = "index"))%>%
+    addLayersControl(overlayGroups = c("Indicator Score",
+                                       "Coal Community",
+                                       "Rural",
+                                       "Oil Community"),
+                     options = layersControlOptions(collapsed = FALSE))%>%
+    # have layers as togglable features
+    hideGroup(group = c("Coal Community","Rural", "Oil Community"))%>%
+    leaflet.extras::addSearchOSM() %>% # add search funtion
      addLegend("bottomright",
-               pal = pal,
-               values = ~indicator,
+               pal = palLen,
+               values = ~vals,
                title = "Est. Values",
-               opacity = 1
-               #labFormat = labelFormat(transform = function(x) sort(x, decreasing = TRUE))
-     )%>%
-     leaflet.extras::addSearchOSM()
+               opacity = 1,
+               labFormat = labelFormat(transform = function(x) sort(x, decreasing = TRUE))
+     )
   return(m)
 }
 
-
+mapMake(geom =geom, inputVar = "pm25", raw = FALSE)
 
