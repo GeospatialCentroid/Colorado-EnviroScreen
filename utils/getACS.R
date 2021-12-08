@@ -19,8 +19,8 @@ getACS <- function(processingLevel, year , overwrite = FALSE){
   # geometry = character descirbing the spatial extent
   # year = numeric value define the year to pull data from
   ###
-  x <- c("tidycensus","dplyr","tidyr")
-  lapply(x, require, character.only = TRUE)
+  # x <- c("tidycensus","dplyr","tidyr")
+  # lapply(x, require, character.only = TRUE)
   # call census api key
   # getCensusAPIKey()
   #### potential for some conditional testing here, but this is getting
@@ -30,7 +30,7 @@ getACS <- function(processingLevel, year , overwrite = FALSE){
   pathToData <- paste0("data/acs/acs_",processingLevel,".csv")
   
   if(file.exists(pathToData) & overwrite == FALSE){
-    acs <- read.csv(pathToData)
+    acs <- vroom::vroom(pathToData)
     return(acs)
   }else{
     # change the geometry character to match requirements in tidy census

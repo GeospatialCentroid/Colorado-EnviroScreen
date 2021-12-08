@@ -48,7 +48,7 @@ getEJScreen <- function(filePath, geometry, overWrite=FALSE){
   #
   pathToData <- paste0("data/EJScreen/ejscreen_",processingLevel,".csv")
   if(file.exists(pathToData) & overWrite == FALSE){
-    geom <- read.csv(pathToData)
+    geom <- vroom::vroom(pathToData)
     return(geom)
   }else{
     d1 <- vroom::vroom("data/EJScreen/EJSCREEN_2020_StatePctile.csv")%>%

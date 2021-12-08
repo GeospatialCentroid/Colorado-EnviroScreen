@@ -6,49 +6,56 @@
 
 # load required libraries 
 # install.packages("pacman")
-pacman::p_load(tigris, # pulling spatial geometries
-               tidycensus, # pulling census data
-               dplyr, # data manipulation
-               sf, # processing vector spatial data 
-               stringr,# string manipulation
-               tictoc, # running processing time checks 
-               vroom, # loading large datasets
-               terra, # processing rasters 
-               tmap, #visualize spatial data
-               arcpullr, # pull objects from ESRI REST api,
-               purrr, # joining and other iterative processes
-               leaflet, # mapping features
-               leaflet.extras # search functionality 
-               )
+pacman::p_load(
+  tigris, # pulling spatial geometries
+  tidycensus, # pulling census data
+  dplyr, # data manipulation
+  sf, # processing vector spatial data
+  stringr, # string manipulation
+  tictoc, # running processing time checks
+  vroom, # loading large datasets
+  terra, # processing rasters
+  tmap, # visualize spatial data
+  arcpullr, # pull objects from ESRI REST api,
+  purrr, # joining and other iterative processes
+  leaflet, # mapping features
+  leaflet.extras, # search functionality
+  feather,
+  sfarrow
+)
 
 # source functions; this is verbose, so temp object is created then removed 
 ### if we can find a way to pass parameters to the source function within the 
 ### lapply we can get around this. 
-functions <- list.files("utils/", full.names = TRUE,recursive = TRUE)
-for(i in seq_along(functions)){
+functions <- list.files("utils/", full.names = TRUE, recursive = TRUE)
+for (i in seq_along(functions)) {
   print(i)
   source(file = functions[i], echo = FALSE)
 }
 # download data 
 ### leave all relative paths as teminal "no '/'" this will be account for if a 
 ### larger path is constructed 
-pullGeometryDatasets(fileFolder = "data",
-                     pullNewData = FALSE)
+pullGeometryDatasets(
+  fileFolder = "data",
+  pullNewData = FALSE
+)
 
-# set processing level 
+# set processing level
 ### "censusBlockGroup", "censusTract", "county"
-processingLevel <- "county"
-# call in spatial object at give extent 
-geometry <- setSpatialData(dataFolder = "data/",scale = processingLevel)
+processingLevel <- "censusBlockGroup"
+
+# call in spatial object at give extent
+geometry <- setSpatialData(dataFolder = "data/", scale = processingLevel)
 
 ### EJScreen and ACS data contributes to multiple components run it here then split out
-ejscreen <- getEJScreen(filePath = "data/EJScreen/EJSCREEN_2020_StatePctile.csv",
-                        geometry = geometry)
+ejscreen <- getEJScreen(
+  filePath = "data/EJScreen/EJSCREEN_2020_StatePctile.csv",
+  geometry = geometry
+)
 ### add condition to test for the existence of a specific file based on geom
-
 acsData <- getACS(processingLevel = processingLevel, year = 2019)
-### add condition to test for the existence of a specific file based on geom
 
+### add condition to test for the existence of a specific file based on geom
 
 ####
 # Exposures
@@ -75,6 +82,10 @@ acsData <- getACS(processingLevel = processingLevel, year = 2019)
 tic()
 envExposures <- enviromentalExposures(geometry = geometry, ejscreen = ejscreen)
 toc()
+# county : 51.28 sec elapsed
+# censusTract : 66.48 sec elapsed
+# censusBlockGroups : 77.48 sec elapsed
+
 
 
 ####
@@ -92,6 +103,11 @@ toc()
 tic()
 envEffects <- enviromentalEffects(geometry = geometry, ejscreen = ejscreen)
 toc()
+# county : 1.58 sec elapsed
+# censusTract : 1.11 sec elapsed
+# censusBlockGroups : 0.42 sec elapsed
+
+
 
 ####
 # Climate Impacts
@@ -103,6 +119,11 @@ toc()
 tic()
 climateData <- climate(geometry)
 toc()
+# county : 22.89 sec elapsed
+# censusTract :37.2 sec elapsed
+# censusBlockGroups : 50.84 sec elapsed
+
+
 
 
 ####
@@ -120,6 +141,10 @@ toc()
 tic()
 senPop <- sensitivePopulations(geometry = geometry, ejscreen = ejscreen)
 toc()
+# county : 4.61 sec elapsed
+# censusTract : 4.1 sec elapsed
+# censusBlockGroups : 4.19 sec elapsed
+
 
 
 ####
@@ -136,6 +161,11 @@ toc()
 tic()
 socEco <- socioEconomicFactors(geometry,ejscreen, acsData)
 toc()
+# county : 0.84 sec elapsed
+# censusTract : 0.6 sec elapsed
+# censusBlockGroups : 0.52 sec elapsed
+
+
 
 # merge all datasets on geoid
 # apply function across all features 
@@ -147,16 +177,33 @@ df <- joinDataFrames(componentName = "all", dataframes = dataframes)%>%
 # generate the component scores  
 ### 
 df <- df %>%
+  rowwise() %>% 
   dplyr::mutate(
-    pollClimBurden =  (envExp + envEff/2 + climate/2)/2,
-    pollClimBurden_Pctl = percent_rank(pollClimBurden) *100,
-    popCharacteristic = (senPop + socEco)/2,
-    popCharacteristic_Pctl = percent_rank(popCharacteristic) *100,
-    finalScore = (pollClimBurden + popCharacteristic),
-    finalScore_Pctl = percent_rank(finalScore) *100
-  )
-write.csv(df, file = paste0("data/envScreenScores/",processingLevel,".csv"))
-save(df, file = paste0("data/envScreenScores/",processingLevel,".RData"))
+    pollClimBurden =  sum(envExp, envEff, na.rm = TRUE)/2 + (climate/2),
+    popCharacteristic = sum(senPop, socEco, na.rm = TRUE)/2,
+    finalScore = sum(pollClimBurden, `popCharacteristic`, na.rm = TRUE)
+    )
+### Error ###
+# percent_rank was returning NaN values within the mutate... Pulled out for short fix 
+df$pollClimBurden_Pctl <- percent_rank(df$pollClimBurden) *100
+df$popCharacteristic_Pctl <- percent_rank(df$popCharacteristic) *100
+df$finalScore_Pctl <- percent_rank(df$finalScore) *100
+
+###
+# write the output if wanted 
+###
+feather::write_feather(df,path = paste0("data/envScreenScores/",processingLevel,".feather"))
+
+###
+# compile the three features into single object and join with spatial data 
+###
+generateDataForShiny()
+
+
+
+
+
+
 
 ###
 # Stand alone map Elements 

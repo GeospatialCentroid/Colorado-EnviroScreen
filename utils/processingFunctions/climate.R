@@ -10,7 +10,6 @@ climate <- function(geometry){
   # geometry  : sf object used to define geogrpahic scale 
   # ejscreen : dataframe with GEOID and all elements pulled from the EJscreeen 
   ###
-  
   # run functions 
   d1 <- getWildfile(filePath = "data/wildfire/Data/whp2020_GeoTIF/whp2020_cnt_conus.tif" , geometry)
   d2 <- getFloodplain(filePath = "data/floodPlains/floodHazard.shp", geometry)

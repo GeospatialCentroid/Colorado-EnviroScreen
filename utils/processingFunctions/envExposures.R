@@ -12,16 +12,23 @@ enviromentalExposures <- function(geometry, ejscreen){
   ###
   
   # run functions 
+  cat("Ozone")
     d1 <- getOzone(filePath = "data/epa_cmaq/2017_ozone_daily_8hour_maximum.txt.gz" , geometry)
+  cat("pm25")
     d2 <- getPM25(filePath = "data/epa_cmaq/2017_pm25_daily_average.txt.gz", geometry)
+  cat("ejscreen")
     d3 <- ejscreen %>%
       dplyr::select("GEOID","leadPaint","deiselPM", "trafficeProx")
+  cat("haps")
     d4 <- getHAPS(filePath = "data/haps/APENs 8_24_2021.csv" , geometry)
-    d5 <- getOtherHAPS(filePath = "data/haps/APENs 8_24_2021.csv" , geometry)
-    ## addataional elements needed 
-    index <- length(c(names(d1), names(d2),names(d3),names(d4),names(d5)))-5
+    #d5 <- getOtherHAPS(filePath = "data/haps/APENs 8_24_2021.csv" , geometry)
     
-    dataframes <- list(d1,d2,d3,d4,d5)
+    # ## additional elements needed 
+    index <- length(c(names(d1), names(d2),names(d3),names(d4)))-4
+    
+    dataframes <- list(d1,d2,d3,d4)
+    # grab index based on the number of inputs 
+    #index <- length(dataframes)
     df <- joinDataFrames(componentName = "Environmental_Exposures", dataframes)%>%
       dplyr::mutate(
         across(where(is.numeric),
@@ -33,8 +40,5 @@ enviromentalExposures <- function(geometry, ejscreen){
     df$envExp <- rowMeans(df[,((index+3):(index*2 + 2))])
     df <- df %>%
       dplyr::select(-component)
-    return(df)
-    
-    
     return(df)
 }

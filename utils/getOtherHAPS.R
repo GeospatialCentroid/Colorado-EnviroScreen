@@ -12,10 +12,10 @@
 
 ### testing
 ###
-# filePath <- "data/haps/APENs 8_24_2021.csv"
+ filePath <- "data/haps/APENs 8_24_2021.csv"
 # geometry <- sf::st_read("data/censusBlockGroup/coloradoCensusBlockGroups.geojson")
 # geometry <- sf::st_read("data/censusTract/coloradoCensusTracts.geojson")
-# geometry <- sf::st_read("data/county/coloradoCounties.geojson")
+ geometry <- sf::st_read("data/county/coloradoCounties.geojson")
 ### 
 
 
@@ -70,7 +70,8 @@ getOtherHAPS <- function(filePath, geometry){
     sf::st_intersection(geom)
   
   ####
-  # currently this is just doing a direct intersect, we will want to change the method to match point buffer define in the cal enviroscreen process.
+  # currently this is just doing a direct intersect, we will want to change the 
+  # method to match point buffer define in the cal enviroscreen process.
   ###
   
   
