@@ -1,0 +1,62 @@
+---
+title: "view_downloadTable"
+author: "dan carver"
+date: "12/8/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE )
+library(readr)
+library(DT)
+library(dplyr)
+```
+
+## Current Eviroscreen scores `r Sys.Date()`
+
+Data tables contain score information for each of the geographic scales of interest. 
+
+```{r render data,include=FALSE}
+d1 <- readr::read_csv("F:/geoSpatialCentroid/coEnvrioScreen/src/Colorado-EnviroScreen/data/envScreenScores/allScores.csv")
+
+areas <- unique(d1$area)
+
+l1 <- list()
+for(i in seq_along(areas)){
+  l1[[i]] <- d1 %>%
+    dplyr::filter(area == areas[i])%>%
+  datatable(filter = list(
+  position = 'top', clear = FALSE
+),
+extensions = 'Buttons',
+            options = list(dom = 'Blfrtip',
+                           buttons = c('copy', 'csv', 'excel'),
+                           lengthMenu = list(c(10,25,50,-1),
+                                             c(10,25,50,"All"))))
+  }
+
+```
+
+## County
+
+All data for the counties 
+
+```{r county}
+l1[[1]]
+```
+
+## census tracts 
+
+All data for the census tracts  
+
+```{r census tract}
+l1[[2]]
+```
+
+## census block groups 
+
+All data for the census block groups  
+
+```{r census block groups}
+l1[[3]]
+```
