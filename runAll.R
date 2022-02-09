@@ -21,7 +21,6 @@ pacman::p_load(
   leaflet, # mapping features
   leaflet.extras, # search functionality
   feather,
-  sfarrow,
   tidyr
 )
 
@@ -199,7 +198,7 @@ for(val1 in c("censusBlockGroup", "censusTract", "county")){
   ###
   # write the output if wanted 
   ###
-  feather::write_feather(df,path = paste0("data/envScreenScores/",processingLevel,".feather"))
+  feather::write_feather(df,path = paste0("data/envScreenScores/",processingLevel,"_1.feather"))
   
 }
 

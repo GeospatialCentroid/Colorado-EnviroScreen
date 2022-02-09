@@ -5,7 +5,7 @@
 ###
 
 # path for testing the function 
-# filePath <- "data/epa_cmaq/2017_ozone_daily_8hour_maximum.txt"
+# filePath <- "data/epa_cmaq/2017_ozone_daily_8hour_maximum.txt.gz"
 # geometry <- sf::st_read("data/county/coloradoCounties.geojson")
 # geometry <- sf::st_read("data/censusBlockGroup/coloradoCensusBlockGroups.geojson")
 # geometry <- sf::st_read("data/censusTract/coloradoCensusTracts.geojson")
@@ -15,15 +15,14 @@
 
 getOzone <- function(filePath, geometry){
   
-  x <- c("vroom", "sf","dplyr")
-  lapply(x, require, character.only = TRUE)
-  
+  # x <- c("vroom", "sf","dplyr")
+  # lapply(x, require, character.only = TRUE)
+   
   # read in dataset - fread for large files
   d1 <- vroom::vroom(filePath) %>%
     dplyr::filter(str_starts(FIPS, "08"))%>%
-    dplyr::group_by(FIPS)%>%
     dplyr::mutate(Conc = as.numeric(`ozone_daily_8hour_maximum(ppb)`))%>%
-    group_by(FIPS) %>% 
+    dplyr::group_by(FIPS) %>% 
     summarise(ozone_mean = mean(Conc)) %>% 
     #rename as tract for calculation below
     dplyr::select(tract = FIPS, ozone_mean)

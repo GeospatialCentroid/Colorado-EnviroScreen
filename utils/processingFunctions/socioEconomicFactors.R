@@ -39,7 +39,14 @@ socioEconomicFactors <- function(geometry, ejscreen, acsData){
              .names = "{col}_{fn}")
       )
   
-  
+  ### need to account for zero values due to NA values in indicators 
+  for(i in 3:(index+2)){
+    n1 <- names(df)[i]
+    n2 <- paste0(n1,"_pcntl")
+    nas <- is.na(df[,n1])
+    df[ ,n2][nas] <- NA
+ 
+  }
   
   # determine the average value across all features 
   df$socEco <- rowMeans(df[,((index+3):(index*2 + 2))], na.rm = TRUE)
