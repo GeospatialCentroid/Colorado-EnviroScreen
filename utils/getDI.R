@@ -15,7 +15,7 @@
 getDI <- function(overWrite = FALSE){
   # overWrite defines if you want to force the file to be recreated.
 
-  pathToData <- "data/diCommunities/diCommunities.shp"
+  pathToData <- "data/diCommunities/diCommunities.rda"
 
   if(file.exists(pathToData) & overWrite == FALSE){
     return(paste0("The DI community spatial data exists and can be found ", pathToData))
@@ -50,7 +50,7 @@ getDI <- function(overWrite = FALSE){
                                    "B25002_002"), # total occupied units
 
                      state = "08",
-                     year = 2019) %>%
+                     year = 2019)%>%
       select(-moe) %>%
       spread(key = variable, value = estimate)%>%
       mutate(TotalPop = B01001_001,
@@ -78,19 +78,19 @@ getDI <- function(overWrite = FALSE){
           DI_communityCount != 0 ~ 1,
           TRUE ~ 0
         )
+        
       )
 
     # read in geometry for census block groups
     geom <- sf::st_read("data/censusBlockGroup/coloradoCensusBlockGroups.geojson")%>%
       dplyr::select(GEOID)%>%
-      dplyr::left_join(bg_co, by = "GEOID")
-
+      dplyr::left_join(bg_co, by = "GEOID")%>%
+      dplyr::filter(Min_FLAG != 0 | FLP_FLAG != 0 | Burdened_FLAG !=0 )%>%
+      st_transform(crs = st_crs(4326))%>%
+      rmapshaper::ms_simplify()
+    
     #write feature
-    sf::st_write(obj = geom, dsn = file,delete_dsn = TRUE)
-    # save as rda
-    di <- sf::st_read(pathToData) %>%
-      dplyr::filter(Mn_FLAG != 0 | FLP_FLA != 0 | Br_FLAG !=0 )
-    saveRDS(object = di, file = "data/diCommunities/diCommunities.rda")
-    return(paste0("The DI community spatial data was writen ", file))
+    saveRDS(object = geom, file = "data/diCommunities/diCommunities.rda")
+    return(paste0("The DI community spatial data was writen ", pathToData))
   }
 }

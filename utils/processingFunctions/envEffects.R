@@ -21,22 +21,13 @@ enviromentalEffects <- function(geometry, ejscreen){
   df <- joinDataFrames(componentName = "Environmental_Effects", dataframes)%>%
     dplyr::mutate(
       across(where(is.numeric),
-             .fns = list(pcntl = ~ifelse(is.na(.), 0, cume_dist(.)*100)),
+             .fns = list(pcntl = ~cume_dist(.)*100),
              .names = "{col}_{fn}")
     )
   
-  ### need to account for zero values due to NA values in indicators 
-  for(i in 3:(index+2)){
-    n1 <- names(df)[i]
-    n2 <- paste0(n1,"_pcntl")
-    nas <- is.na(df[,n1])
-    df[ ,n2][nas] <- NA
-    
-  }
-  
   
   # determine the average value across all features 
-  df$envEff <- rowMeans(df[,((index+3):(index*2 + 2))])
+  df$envEff <- rowMeans(df[,((index+3):(index*2 + 2))], na.rm = TRUE)
   df <- df %>%
     dplyr::select(-component)
   return(df)
