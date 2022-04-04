@@ -5,7 +5,7 @@
 ###
 
 
-enviromentalEffects <- function(geometry, ejscreen){
+enviromentalEffects <- function(geometry, ejscreen, processingLevel){
   ### runs all processing functions and combines outputs into a single feature
   # geometry  : sf object used to define geogrpahic scale 
   # ejscreen : dataframe with GEOID and all elements pulled from the EJscreeen 
@@ -14,10 +14,15 @@ enviromentalEffects <- function(geometry, ejscreen){
   # run functions 
   d1 <- ejscreen %>%
     dplyr::select("GEOID","waterDischarge","nplProx","rmpProx","tsdfProx")
-  ## addataional elements needed 
-  index <- length(names(d1))-1
+  d2 <- getSurfaceWater(filePath = "data/sufaceWater/Streams303dLayerFinal.shp", 
+                        processingLevel = processingLevel, geometry,compile = FALSE, overWrite = FALSE)
+  d3 <- getMines(geometry,processingLevel = processingLevel, overWrite = FALSE)
+  d4 <- getProxyOilGas(geometry, processingLevel = processingLevel, overWrite = FALSE)
   
-  dataframes <- list(d1)
+  ## additional elements needed 
+  index <- length(c(names(d1), names(d2), names(d3),names(d4)))-4
+  
+  dataframes <- list(d1,d2,d3,d4)
   df <- joinDataFrames(componentName = "Environmental_Effects", dataframes)%>%
     dplyr::mutate(
       across(where(is.numeric),

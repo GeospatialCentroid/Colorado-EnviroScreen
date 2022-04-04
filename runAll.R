@@ -20,10 +20,10 @@ pacman::p_load(
   purrr, # joining and other iterative processes
   leaflet, # mapping features
   leaflet.extras, # search functionality
-  feather,
   tidyr, 
   rmapshaper,
-  readr
+  readr,
+  lubridate
 )
 
 # source functions; this is verbose, so temp object is created then removed
@@ -39,19 +39,18 @@ pullGeometryDatasets(
   pullNewData = FALSE
 )
 
-# set processing level
-### "censusBlockGroup", "censusTract", "county"
 
-for(val1 in c("censusBlockGroup", "censusTract", "county")){
+# Version -----------------------------------------------------------------
+version <- "2"
+
+
+for(val1 in c( "county","censusTract","censusBlockGroup")){ 
   processingLevel <- val1
   # call in spatial object at give extent
   geometry <- setSpatialData(dataFolder = "data/", scale = processingLevel)
 
   ### EJScreen and ACS data contributes to multiple components run it here then split out
-  ejscreen <- getEJScreen(
-    filePath = "data/EJScreen/EJSCREEN_2020_StatePctile.csv",
-    geometry = geometry
-  )
+  ejscreen <- getEjScreen2021(geometry = geometry ,processingLevel = processingLevel)
   ### add condition to test for the existence of a specific file based on geom
   acsData <- getACS(processingLevel = processingLevel, year = 2019)
 
@@ -60,36 +59,41 @@ for(val1 in c("censusBlockGroup", "censusTract", "county")){
   ####
   # Exposures
   ####
+  print("exposures")
   tic()
-  envExposures <- enviromentalExposures(geometry = geometry, ejscreen = ejscreen)
+  envExposures <- enviromentalExposures(geometry = geometry, ejscreen = ejscreen,processingLevel = processingLevel)
   toc()
-  # county : 51.28 sec elapsed
+  # county : 86.62 sec elapsed
   # censusTract : 66.48 sec elapsed
-  # censusBlockGroups : 77.48 sec elapsed
+  # censusBlockGroups : 135.71 sec elapsed
 
 
 
   ####
   # Environmental Effects
   ####
+  print("effects")  ### failing due to memory errors... need to rework the function 
   tic()
-  envEffects <- enviromentalEffects(geometry = geometry, ejscreen = ejscreen)
+  envEffects <- enviromentalEffects(geometry = geometry,
+                                    processingLevel = processingLevel,
+                                    ejscreen = ejscreen)
   toc()
-  # county : 1.58 sec elapsed
+  # county : 257.29 sec elapsed
   # censusTract : 1.11 sec elapsed
-  # censusBlockGroups : 0.42 sec elapsed
+  # censusBlockGroups : 1.17 sec elapsed
 
 
 
   ####
   # Climate Impacts
   ####
+  print("climate")
   tic()
   climateData <- climate(geometry)
   toc()
-  # county : 22.89 sec elapsed
+  # county : 38.95 sec elapsed
   # censusTract :37.2 sec elapsed
-  # censusBlockGroups : 50.84 sec elapsed
+  # censusBlockGroups : 66.16 sec elapsed
 
 
 
@@ -97,24 +101,27 @@ for(val1 in c("censusBlockGroup", "censusTract", "county")){
   ####
   # Sensitive Populations
   ####
+  
+  print("pop")
   tic()
   senPop <- sensitivePopulations(geometry = geometry, ejscreen = ejscreen)
   toc()
-  # county : 4.61 sec elapsed
-  # censusTract : 4.1 sec elapsed
-  # censusBlockGroups : 4.19 sec elapsed
+  # county : 7.47 sec elapsed
+  # censusTract : 7.78 sec elapsed
+  # censusBlockGroups : 8.75 sec elapsed
 
 
 
   ####
   # Socioeconomic Factors
   ####
+  print("soc")
   tic()
-  socEco <- socioEconomicFactors(geometry,ejscreen, acsData)
+  socEco <- socioEconomicFactors(geometry,ejscreen, acsData, processingLevel = processingLevel)
   toc()
-  # county : 0.84 sec elapsed
-  # censusTract : 0.6 sec elapsed
-  # censusBlockGroups : 0.52 sec elapsed
+  # county : 0.66 sec elapsed
+  # censusTract : 2.8 sec elapsed
+  # censusBlockGroups : 4 sec elapsed
 
 
 
@@ -148,20 +155,20 @@ for(val1 in c("censusBlockGroup", "censusTract", "county")){
   ###
   # write the output if wanted
   ###
-  feather::write_feather(df,path = paste0("data/envScreenScores/",processingLevel,"_1.feather"))
-
+  write_csv(df,path = paste0("data/envScreenScores/",processingLevel,"_",version,".csv"))
 }
 
 
 
 # generate dataset for shiny input ----------------------------------------
-generateDataForShiny(removeNativeLand = TRUE)
+generateDataForShiny(removeNativeLand = TRUE,version = version)
 
 ###
 # Stand alone map Elements
 ###
 
 ### DI communities
+
 getDI(overWrite = TRUE)
 ### Oil and gas community,
 getOilGas()

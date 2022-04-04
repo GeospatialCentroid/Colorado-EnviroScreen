@@ -22,7 +22,7 @@
 # # 143 second on county - raster 
 # # 12.58 seconds on county, 15.66 seconds on census block group - terra 
 
-getWildfile <- function(filePath, geometry){
+getWildfire <- function(filePath, geometry){
   ###
   # processes raster dataset to various geometry
   # filePath : relative path to wildfire risk dataset

@@ -20,21 +20,20 @@
 
 
 
-getOtherHAPS <- function(filePath, geometry){
+getOtherHAPS <- function(filePath, geometry, processingLevel,overWrite=FALSE){
   ### Processes the HAPS dataset establishing a volume weighted score by geometry
   # filePath : relative path to csv of HAPS data
   # geometry : sf object of the census block group, census track, or county
   # return : a dataframe with geoid and haps score 
   ###
-
-  x <- c("sf","dplyr")
-  lapply(x, require, character.only = TRUE)
   
-  #call in normalize function 
-  source("utils/processingFunctions/normalizeVector.R")
+  file <- paste0("data/haps/",processingLevel,"_otherHAPS.csv")
+  if(file.exists(file) & isFALSE(overWrite)){
+    geom <- read_csv(file)
+  }else{
   
   # read in dataset and drop locations with no coordinates 
-  d1 <- read.csv(filePath)%>%
+  d1 <- read_csv(filePath)%>%
     dplyr::filter(SITE_X_COORDINATE != 0)
   
   ### Generate 5 year median values for all pollutants 
@@ -63,26 +62,33 @@ getOtherHAPS <- function(filePath, geometry){
                   "SITE_Y_COORDINATE")%>%
     st_as_sf(.,coords=c("SITE_X_COORDINATE","SITE_Y_COORDINATE"),crs=4269)
   
-  ### attached GEOID to all points 
-  geom <- geometry %>%
-    dplyr::select(GEOID)
-  sp1 <-  sp1 %>% 
-    sf::st_intersection(geom)
+  # Intersection and buffer process -----------------------------------------
+  geom2 <- st_transform(geometry, crs = st_crs(5070))%>% select(GEOID)
+  d5 <- st_transform(sp1, crs = st_crs(5070))
+  # running buffering process. 
+  b1 <- bufferObjects(bufferFeature = d5, 
+                      geometry = geom2,
+                      dist = seq(250, 1000, by = 250),
+                      weight = c(1, 0.5, 0.2, 0.1)
+  )
+  # select the top score value only, combine with site score, and summarize
+  geom <- b1 %>%
+    st_drop_geometry()%>%
+    arrange(desc(weight)) %>% # ensures highest score is kept
+    dplyr::distinct(GEOID, APCD_SITE_ID , .keep_all = TRUE)%>%
+    group_by(GEOID) %>% 
+    summarise(bufferFeature_score = sum(weight, na.rm = TRUE)) %>%
+    dplyr::select(GEOID, otherHAPS = bufferFeature_score) 
   
-  ####
-  # currently this is just doing a direct intersect, we will want to change the 
-  # method to match point buffer define in the cal enviroscreen process.
-  ###
+  geom <- left_join(st_drop_geometry(geom2), geom, by = "GEOID")%>%
+    dplyr::mutate(
+      otherHAPS = case_when(
+        is.na(otherHAPS) ~ 0,
+        TRUE ~ otherHAPS
+      )
+    )
   
-  
-  ### attach and summarize haps score 
-  temp1 <- sp1 %>%
-    dplyr::left_join(d2, by = "APCD_SITE_ID")%>%
-    dplyr::group_by(GEOID)%>%
-    dplyr::summarize(sum(total))%>%
-    dplyr::rename(HAPS = `sum(total)`)%>%
-    as.data.frame()%>%
-    dplyr::select(GEOID, HAPS_Other = HAPS)
-  
-  return(temp1)
+  write_csv(geom, file = file )
+  }
+  return(geom)
 }

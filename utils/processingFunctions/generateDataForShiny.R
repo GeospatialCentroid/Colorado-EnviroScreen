@@ -4,7 +4,7 @@
 # carverd@colostate.edu
 ###
 
-generateDataForShiny <- function(removeNativeLand){
+generateDataForShiny <- function(removeNativeLand, version){
   ###
   # takes outputs from the enviroscreen scoring process and combines and renames
   # for use in the shiny app
@@ -32,7 +32,7 @@ generateDataForShiny <- function(removeNativeLand){
     rmapshaper::ms_simplify()
 
   
-    # census block group 
+  # census block group 
   censusBlockGroup <- sf::st_read("data/censusBlockGroup/coloradoCensusBlockGroups.geojson")%>%
     dplyr::mutate(area = "Census Block Group",geoid2 =stringr::str_sub(GEOID,start = 1, end = 5))%>%
     dplyr::left_join( y = countyName, by = c("geoid2" = "GEOID"))%>%
@@ -44,11 +44,11 @@ generateDataForShiny <- function(removeNativeLand){
   ### compile names based on the county relationship 
   
   # read in feather files
-  c_data <- feather::read_feather("data/envScreenScores/county_1.feather")%>%
+  c_data <- read_csv(paste0("data/envScreenScores/county_",version,".csv"))%>%
     dplyr::left_join(county, by = "GEOID")
-  ct_data <- feather::read_feather("data/envScreenScores/censusTract_1.feather")%>%
+  ct_data <- read_csv(paste0("data/envScreenScores/censusTract_",version,".csv"))%>%
     dplyr::left_join(censusTract, by = "GEOID")
-  cbg_data <- feather::read_feather("data/envScreenScores/censusBlockGroup_1.feather")%>%
+  cbg_data <- read_csv(paste0("data/envScreenScores/censusBlockGroup_",version,".csv"))%>%
     dplyr::left_join(censusBlockGroup, by = "GEOID")
 
   # join all features
@@ -67,6 +67,7 @@ generateDataForShiny <- function(removeNativeLand){
   df <- df %>%
     dplyr::select(
       "GEOID"
+      ,"County Name" = "name"
       ,"Colorado EnviroScreen Score"=  "finalScore"
       ,"Colorado EnviroScreen Score Percentile"="finalScore_Pctl"
       ,"Pollution & Climate Burden"="pollClimBurden"
@@ -83,6 +84,7 @@ generateDataForShiny <- function(removeNativeLand){
       ,"Climate vulnerability Percentile"="climate_Pctl"
       ,"Sensitive population Percentile"="senPop_Pctl"
       ,"Demographics Percentile"="socEco_Pctl"
+      # exposures 
       ,"Ozone"="ozone"
       ,"Ozone Percentile"="ozone_pcntl"
       ,"Particles"="pm25"
@@ -95,6 +97,13 @@ generateDataForShiny <- function(removeNativeLand){
       ,"Traffic proximity & volume Percentile"="trafficeProx_pcntl"
       ,"Air toxics emissions"="HAPS"
       ,"Air toxics emissions Percentile"="HAPS_pcntl"
+      ,"Other Air Pollutants" = "otherHAPS"
+      ,"Other Air Pollutants Percentile" = "otherHAPS_pcntl"
+      ,"Drinking Water Violations" = "drinkingWater"
+      ,"Drinking Water Violations Percentile"= "drinkingWater_pcntl"
+      ,"Noise" = "noiseLevel" 
+      ,"Noise Percentile" = "noiseLevel_pcntl"
+      # effects 
       ,"Wastewater discharge indicator"="waterDischarge"
       ,"Wastewater discharge indicator Percentile"="waterDischarge_pcntl"
       ,"Proximity to National Priorities List (NPL) sites"="nplProx"
@@ -103,10 +112,22 @@ generateDataForShiny <- function(removeNativeLand){
       ,"Proximity to RMP sites Percentile"="rmpProx_pcntl"
       ,"Proximity to hazardous waste facilities" ="tsdfProx"
       ,"Proximity to hazardous waste facilities Percentile"="tsdfProx_pcntl"
+      ,"Proximiy to Oil and Gas" = "proxyOilGas"
+      ,"Proximiy to Oil and Gas Percentile" = "proxyOilGas_pcntl"
+      ,"Proximiy to Mining and Smelting" = "mining"
+      ,"Proximiy to Mining and Smelting Percentile" = "mining_pcntl"
+      ,"Impaired Surface Water" = "surfaceWater"
+      ,"Impaired Surface Water Percentile" = "surfaceWater_pcntl"
+      # climate 
       ,"Wildfire risk"="wildfire"
       ,"Wildfire risk Percentile"="wildfire_pcntl"
       ,"Floodplains"="floodplainPercent"
       ,"Floodplains Percentile"="floodplainPercent_pcntl"
+      ,"Drought"="drought"
+      ,"Drought Percentile"="drought_pcntl"
+      ,"Extreme Heat Days"="aveHeatDays"
+      ,"Extreme Heat Days Percentile"="aveHeatDays_pcntl"
+      # populations 
       ,"Population under 5"="under5"
       ,"Population under 5 Percentile"="under5_pcntl"
       ,"Population over 64"=  "over64"
@@ -119,6 +140,13 @@ generateDataForShiny <- function(removeNativeLand){
       ,"Life expectancy Percentile"="lifeExpectancy_pcntl"
       ,"Low weight birth rate"="lowBirthWeight"
       ,"Low weight birth rate Percentile"="lowBirthWeight_pcntl"
+      ,"Cancer Incidence"="cancer"
+      ,"Cancer Incidence Percentile"="cancer_pcntl"
+      ,"Diabetes Incidence"="diabetes"
+      ,"Diabetes Incidence Percentile"="diabetes_pcntl"
+      ,"Mental Health Incidence"="mentalHealth"
+      ,"Mental Health Incidence Percentile"="mentalHealth_pcntl"
+      # SocEco
       ,"Percent people of color"="peopleOfColor"
       ,"Percent people of color Percentile" = "peopleOfColor_pcntl"
       ,"Percent less than high school education"="highSchool"
@@ -129,7 +157,8 @@ generateDataForShiny <- function(removeNativeLand){
       ,"Percent linguistic isolation Percentile"="percent_lingiso_pcntl"
       ,"Percent disability"="percent_disability"
       ,"Percent disability Percentile"="percent_disability_pcntl"
-      ,"County Name" = "name"
+      ,"Housing Cost Burdened" = "HH_Burdened_Pct"
+      ,"Housing Cost Burdened Percentile" = "HH_Burdened_Pct_pcntl"
       ,"area"
       ,"geometry"
     )
@@ -157,7 +186,7 @@ generateDataForShiny <- function(removeNativeLand){
     dplyr::select(-"GEOID2")
   
   # rdata delete_dsn 
-  saveRDS(df, file = "data/envScreenScores/allScores.rda")
+  saveRDS(df, file = paste0("data/envScreenScores/allScores_",version,".rda"))
 }
 
 # export feature ----------------------------------------------------------

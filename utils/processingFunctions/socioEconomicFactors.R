@@ -5,7 +5,7 @@
 ###
 
 
-socioEconomicFactors <- function(geometry, ejscreen, acsData){
+socioEconomicFactors <- function(geometry, ejscreen, acsData, processingLevel){
   ### runs all processing functions and combines outputs into a single feature
   # geometry  : sf object used to define geogrpahic scale 
   # ejscreen : dataframe with GEOID and all elements pulled from the EJscreeen 
@@ -16,6 +16,7 @@ socioEconomicFactors <- function(geometry, ejscreen, acsData){
     dplyr::select("GEOID","peopleOfColor","highSchool")
   d2 <- acsData %>%
     dplyr::select("GEOID","percent_lowincome","percent_lingiso","percent_disability")
+  d3 <- getHousingBurden(processingLevel, geometry, overWrite = FALSE)
   
   # there is not percent disability at census block group, so we need to pull in
   # from the census tract level data 
@@ -29,9 +30,9 @@ socioEconomicFactors <- function(geometry, ejscreen, acsData){
   }
   
   ## additional elements needed 
-  index <- length(c(names(d1), names(d2)))-2
+  index <- length(c(names(d1), names(d2), names(d3)))-3
   
-  dataframes <- list(d1,d2)
+  dataframes <- list(d1,d2,d3)
   df <- joinDataFrames(componentName = "socioEconomic_Factors", dataframes)%>%
     dplyr::mutate(
       across(where(is.numeric),

@@ -51,7 +51,7 @@ getHAPS <- function(filePath, geometry){
                   ,SITE_CE_ESTIM
                   )%>%
     dplyr::group_by(APCD_SITE_ID)%>%
-    dplyr::summarise_all(median ,na.rm = TRUE)
+    dplyr::summarise_all(mean ,na.rm = TRUE)
   
   ### normalize data based on volume of emission 
   d2[,2:15] <- apply(d2[,2:15], MARGIN = 2, FUN = normalizeVector)

@@ -42,7 +42,7 @@ getAsthma <- function(filePath, geometry){
     geom <-  d1 %>%
       dplyr::mutate(GEOID = str_sub(GEOID, start = 1, end = 5)) %>%
       dplyr::group_by(GEOID) %>%
-      dplyr::summarise(asthma = median(ASTHMA_ADJRATE, na.rm = TRUE))
+      dplyr::summarise(asthma = mean(ASTHMA_ADJRATE, na.rm = TRUE))
   }
   return(geom)
 }
