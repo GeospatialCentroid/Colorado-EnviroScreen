@@ -53,22 +53,18 @@ path2 <- past0(path1, "/county")
 
 **inputs**
 
-try for two inputs and one output when possible
-- location to raw data
-- geometry extent
+20220406 :  We are switching to writing out intemediate features for all content. This reqiues new parameters 
+
+filePath: Location to input data 
+geometry: spatial object 
+processingLevel: text defining the processingLevel
+version : Version number 
+overWrite: write over existing datafile 
 ```{r}
-processHAPS(filePath = , geometry = )
+processHAPS(filePath = , geometry = , processingLevel = , version = , overWrite= FALSE )
 ```
 function that utilize API calls will not require file paths and should only require geomenty extent
 
-
-Utilize the following to ensure packages within a specific function are load
-```{r}
-x <- c("arcpullr","dplyr", "sf" )
-lapply(x, require, character.only = TRUE)
-
-```
-This should not be necessary for the final product but will be helpful during the development
 
 Functions that write/read datasets should include an overWrite parameter. By default this parameter should be set to false. Changing to true would recreate the output dataset. 
 
