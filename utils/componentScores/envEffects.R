@@ -19,21 +19,18 @@ enviromentalEffects <- function(geometry, ejscreen, processingLevel){
   d3 <- getMines(geometry,processingLevel = processingLevel, overWrite = FALSE)
   d4 <- getProxyOilGas(geometry, processingLevel = processingLevel, overWrite = FALSE)
   
-  ## additional elements needed 
-  index <- length(c(names(d1), names(d2), names(d3),names(d4)))-4
+  ###Temp features for continued shiny work 
+  d2 <- d2[!duplicated(d2$GEOID), ]
+  d4 <- d4[!duplicated(d4$GEOID), ] 
   
+  # combine datasets
   dataframes <- list(d1,d2,d3,d4)
-  df <- joinDataFrames(componentName = "Environmental_Effects", dataframes)%>%
-    dplyr::mutate(
-      across(where(is.numeric),
-             .fns = list(pcntl = ~cume_dist(.)*100),
-             .names = "{col}_{fn}")
-    )
-  
+  df <- joinDataFrames(dataframes)
   
   # determine the average value across all features 
-  df$envEff <- rowMeans(df[,((index+3):(index*2 + 2))], na.rm = TRUE)
-  df <- df %>%
-    dplyr::select(-component)
+  df$envEff <- df %>% 
+    select(contains("_pcntl"))%>%
+    rowMeans(na.rm = TRUE)
+  
   return(df)
 }

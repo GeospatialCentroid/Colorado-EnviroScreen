@@ -18,8 +18,8 @@ pacman::p_load(
   tmap, # visualize spatial data
   arcpullr, # pull objects from ESRI REST api,
   purrr, # joining and other iterative processes
-  leaflet, # mapping features
-  leaflet.extras, # search functionality
+  # leaflet, # mapping features
+  # leaflet.extras, # search functionality
   tidyr, 
   rmapshaper,
   readr,
@@ -29,7 +29,7 @@ pacman::p_load(
 # source functions; this is verbose, so temp object is created then removed
 ### if we can find a way to pass parameters to the source function within the
 ### lapply we can get around this.
-source("utils/loadFunctions.R")
+source("utils/helperFunctions/loadFunctions.R")
 loadFunctions()
 # download data
 ### leave all relative paths as teminal "no '/'" this will be account for if a
@@ -44,6 +44,11 @@ pullGeometryDatasets(
 version <- "2"
 
 
+# tidycensus key ----------------------------------------------------------
+# key <- 
+# getCensusAPIKey(key)
+
+
 for(val1 in c( "county","censusTract","censusBlockGroup")){ 
   processingLevel <- val1
   # call in spatial object at give extent
@@ -54,12 +59,8 @@ for(val1 in c( "county","censusTract","censusBlockGroup")){
   ### add condition to test for the existence of a specific file based on geom
   acsData <- getACS(processingLevel = processingLevel, year = 2019)
 
-  ### add condition to test for the existence of a specific file based on geom
 
-  ####
-  # Exposures
-  ####
-  print("exposures")
+# Exposures ---------------------------------------------------------------
   tic()
   envExposures <- enviromentalExposures(geometry = geometry, ejscreen = ejscreen,processingLevel = processingLevel)
   toc()
@@ -69,10 +70,7 @@ for(val1 in c( "county","censusTract","censusBlockGroup")){
 
 
 
-  ####
-  # Environmental Effects
-  ####
-  print("effects")  ### failing due to memory errors... need to rework the function 
+# Environmental Effects ---------------------------------------------------
   tic()
   envEffects <- enviromentalEffects(geometry = geometry,
                                     processingLevel = processingLevel,
@@ -84,10 +82,7 @@ for(val1 in c( "county","censusTract","censusBlockGroup")){
 
 
 
-  ####
-  # Climate Impacts
-  ####
-  print("climate")
+# Climate Impacts ---------------------------------------------------------
   tic()
   climateData <- climate(geometry)
   toc()
@@ -95,14 +90,7 @@ for(val1 in c( "county","censusTract","censusBlockGroup")){
   # censusTract :37.2 sec elapsed
   # censusBlockGroups : 66.16 sec elapsed
 
-
-
-
-  ####
-  # Sensitive Populations
-  ####
-  
-  print("pop")
+# Socioeconomic Factors ---------------------------------------------------
   tic()
   senPop <- sensitivePopulations(geometry = geometry, ejscreen = ejscreen)
   toc()
@@ -110,12 +98,7 @@ for(val1 in c( "county","censusTract","censusBlockGroup")){
   # censusTract : 7.78 sec elapsed
   # censusBlockGroups : 8.75 sec elapsed
 
-
-
-  ####
-  # Socioeconomic Factors
-  ####
-  print("soc")
+# Socioeconomic Factors ---------------------------------------------------
   tic()
   socEco <- socioEconomicFactors(geometry,ejscreen, acsData, processingLevel = processingLevel)
   toc()
@@ -128,33 +111,11 @@ for(val1 in c( "county","censusTract","censusBlockGroup")){
   # merge all datasets on geoid
   # apply function across all features
   dataframes <- list(envExposures,envEffects,climateData,senPop,socEco)
-  df <- joinDataFrames(componentName = "all", dataframes = dataframes)%>%
-    dplyr::select(-component)
+  
+  # compile final component scores 
+  df <- finalComponentScore(dataframes)
 
-  ###
-  # generate the component scores
-  ###
-  df <- df %>%
-    rowwise() %>%
-    dplyr::mutate(
-      pollClimBurden =  sum(envExp, (envEff * 0.5) , (climate *0.5),na.rm=TRUE)/3,
-      popCharacteristic = sum(senPop, socEco, na.rm = TRUE)/2,
-      finalScore = sum(pollClimBurden, `popCharacteristic`, na.rm = TRUE)
-    )
-  ### Error ###
-  # percent_rank was returning NaN values within the mutate... Pulled out for short fix
-  df$envExp_Pctl <- cume_dist(df$envExp)*100
-  df$envEff_Pctl <- cume_dist(df$envEff)*100
-  df$climate_Pctl <- cume_dist(df$climate)*100
-  df$senPop_Pctl <- cume_dist(df$senPop)*100
-  df$socEco_Pctl <- cume_dist(df$socEco)*100
-  df$pollClimBurden_Pctl <- cume_dist(df$pollClimBurden) *100
-  df$popCharacteristic_Pctl <- cume_dist(df$popCharacteristic) *100
-  df$finalScore_Pctl <- cume_dist(df$finalScore) *100
-
-  ###
-  # write the output if wanted
-  ###
+  # write output ------------------------------------------------------------
   write_csv(df,path = paste0("data/envScreenScores/",processingLevel,"_",version,".csv"))
 }
 
@@ -163,12 +124,9 @@ for(val1 in c( "county","censusTract","censusBlockGroup")){
 # generate dataset for shiny input ----------------------------------------
 generateDataForShiny(removeNativeLand = TRUE,version = version)
 
-###
-# Stand alone map Elements
-###
 
+# Stand alone map Elements ------------------------------------------------
 ### DI communities
-
 getDI(overWrite = TRUE)
 ### Oil and gas community,
 getOilGas()
@@ -177,5 +135,5 @@ getCoal()
 ### urban/rural
 getRural()
 ### justice40 layer 
-getJustice40()
+getJustice40(filePath = "data/justice40/Screening_Tool_Data/communities-2022-03-21-1359GMT.csv", overWrite = FALSE)
 

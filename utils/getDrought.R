@@ -26,8 +26,7 @@ getDrought <- function(filePath, geometry, startYear, endYear){
   #write_csv(x = d5, file = paste0("data/drought/droughtData_",startYear,"_",endYear,".csv"))
   
   # join to goemetry elements 
-  geom <- geometry %>%
-    st_drop_geometry()%>%
+  geom <- st_drop_geometry(geometry)%>%
     dplyr::mutate("FIPS" = str_sub(GEOID, start = 1, end = 5))%>%
     dplyr::left_join(d5, by ="FIPS")%>%
     dplyr::select("GEOID", "averageAreaInDrought", "sumAreaInDrought", "weeksWithDrought", "percentTimeInDrought")

@@ -23,7 +23,7 @@ getRural <- function(){
   
   print(geom2)
   # export 
-  saveRDS(object = geom, file = "data/ruralCommunities/ruralCommunities.rda")
-  saveRDS(object = geom2, file = "data/ruralCommunities/ruralVis.rda")
-  return(paste0("The rural community spatial data was writen to data/ruralCommunities/ruralCommunities.rda"))
+  saveRDS(object = geom, file = "data/ruralCommunities/ruralCommunities.rds")
+  saveRDS(object = geom2, file = "data/ruralCommunities/ruralVis.rds")
+  return(paste0("The rural community spatial data was writen to data/ruralCommunities/ruralCommunities.rds"))
 }

@@ -15,7 +15,7 @@
 getDI <- function(overWrite = FALSE){
   # overWrite defines if you want to force the file to be recreated.
 
-  pathToData <- "data/diCommunities/diCommunities.rda"
+  pathToData <- "data/diCommunities/diCommunities.rds"
 
   if(file.exists(pathToData) & overWrite == FALSE){
     return(paste0("The DI community spatial data exists and can be found ", pathToData))
@@ -66,7 +66,6 @@ getDI <- function(overWrite = FALSE){
                B25091_019+B25091_020+B25091_021+B25091_022, # >30% renters, mortgaged, nonmortgaged
              HH_Burdened_Pct = HH_Burdened/HHUnits,
              Burdened_FLAG = ifelse(HH_Burdened_Pct > .4, 1, 0),
-             COUNTYFIPS = substr(GEOID, 1,5)
       )%>%
       dplyr::select(GEOID,Min_PCT,Min_FLAG,Pov_PCT,FLP_FLAG,HH_Burdened_Pct,Burdened_FLAG)%>%
       dplyr::rowwise()%>%
@@ -90,7 +89,7 @@ getDI <- function(overWrite = FALSE){
       rmapshaper::ms_simplify()
     
     #write feature
-    saveRDS(object = geom, file = "data/diCommunities/diCommunities.rda")
+    saveRDS(object = geom, file = "data/diCommunities/diCommunities.rds")
     return(paste0("The DI community spatial data was writen ", pathToData))
   }
 }

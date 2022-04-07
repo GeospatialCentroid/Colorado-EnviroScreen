@@ -76,7 +76,9 @@ getProxyOilGas <- function(geometry, processingLevel, overWrite = FALSE){
           is.na(proxyOilGas) ~ 0,
           TRUE ~ proxyOilGas
         )
-      )
+      )%>%
+      dplyr::group_by(GEOID)%>%
+      dplyr::summarise(proxyOilGas = sum(proxyOilGas))
     
     write_csv(geom, file = file )
   }

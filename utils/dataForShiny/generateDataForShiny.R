@@ -50,6 +50,9 @@ generateDataForShiny <- function(removeNativeLand, version){
     dplyr::left_join(censusTract, by = "GEOID")
   cbg_data <- read_csv(paste0("data/envScreenScores/censusBlockGroup_",version,".csv"))%>%
     dplyr::left_join(censusBlockGroup, by = "GEOID")
+  ### temp
+  cbg_data <- cbg_data[!duplicated(cbg_data$GEOID), ]
+  
 
   # join all features
   df <- dplyr::bind_rows(c_data, ct_data, cbg_data)
@@ -165,17 +168,17 @@ generateDataForShiny <- function(removeNativeLand, version){
 
   # convert to an sf object
   df <- df %>%
-    mutate(across(where(is.numeric), round, digits=1))%>%
+    mutate(across(where(is.numeric), round, digits=2))%>%
     sf::st_as_sf()
 
   # add label for Coal, oil/gas, rural  -------------------------------------
-  coal <- readRDS("data/coalCommunities/coalCommunities.rda")%>%
+  coal <- readRDS("data/coalCommunities/coalCommunities.rds")%>%
     dplyr::select("GEOID","coal")%>%
     st_drop_geometry()
-  og <- readRDS("data/oilgasCommunities/oilgasCommunities.rda")%>%
+  og <- readRDS("data/oilgasCommunities/oilgasCommunities.rds")%>%
     dplyr::select("GEOID","oilGas")%>%
     st_drop_geometry()
-  rural <- readRDS("data/ruralCommunities/ruralCommunities.rda")%>%
+  rural <- readRDS("data/ruralCommunities/ruralCommunities.rds")%>%
     dplyr::select("GEOID","rural")%>%
     st_drop_geometry()
   
@@ -186,7 +189,7 @@ generateDataForShiny <- function(removeNativeLand, version){
     dplyr::select(-"GEOID2")
   
   # rdata delete_dsn 
-  saveRDS(df, file = paste0("data/envScreenScores/allScores_",version,".rda"))
+  saveRDS(df, file = paste0("data/envScreenScores/allScores_",version,".rds"))
 }
 
 # export feature ----------------------------------------------------------

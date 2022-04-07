@@ -21,7 +21,7 @@ getCoal <- function(){
     patternLayer(pattern = "vertical",mode = "sfc", density = 4)
   
   # export 
-  saveRDS(object = geom, file = "data/coalCommunities/coalCommunities.rda")
-  saveRDS(object = geom2, file = "data/coalCommunities/coalVis.rda")
-  return(paste0("The Coal community spatial data was writen to data/coalCommunities/coalCommunities.rda"))
+  saveRDS(object = geom, file = "data/coalCommunities/coalCommunities.rds")
+  saveRDS(object = geom2, file = "data/coalCommunities/coalVis.rds")
+  return(paste0("The Coal community spatial data was writen to data/coalCommunities/coalCommunities.rds"))
 }

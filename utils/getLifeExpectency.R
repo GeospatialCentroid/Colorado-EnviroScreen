@@ -1,31 +1,6 @@
-###
-# process life expectency data from the CDC
-# 20210920 
-# carverd@colostate.edu 
-###
-
-#testing 
-# library(sf)
-# library(dplyr)
-# library(stringr)
-# filePath <- "data/U.S._Life_Expectancy_at_Birth_by_State_and_Census_Tract_-_2010-2015.csv"
-# geometry <- sf::st_read("data/censusBlockGroup/coloradoCensusBlockGroups.geojson")
-# geometry <- sf::st_read("data/censusTract/coloradoCensusTracts.geojson")
-# geometry <- sf::st_read("data/county/coloradoCounties.geojson")
-# 
-# t1 <- Sys.time()
-# d2 <- getLifeExpectancy(filePath = filePath, geometry = geometry)
-# t2 <- Sys.time() - t1
-# t2
 
 getLifeExpectancy <- function(filePath, geometry){
-  ###
-  # inputs life expectancy data from the CDC. Does some transformation to get it to standard format so 
-  # processing can be complete in a similar fashion to other sources.
-  # filePath : relative path of the csv 
-  # geometry : sf object of one of the three geomerty levels
-  ###
-  
+
   g1 <- sf::st_read("data/county/coloradoCounties.geojson")
 
   # read in data, filter to colorado, and separate county character column to facilitate join 
@@ -58,9 +33,9 @@ getLifeExpectancy <- function(filePath, geometry){
   ### select processing level by comparing length of GEOID between objects
   if(nchar(geometry$GEOID[1]) >= nchar(d1a$GEOID[1])){ 
     #add tract-level column to use as join then keep original geoid (tract or block)
-    geom <- as.data.frame(geometry) %>% 
-      dplyr::mutate(GEOID = str_sub(GEOID, start = 1, end = 11)) %>% 
-      dplyr::left_join(d1a, by = "GEOID") %>% 
+    geom <- st_drop_geometry(geometry) %>% 
+      dplyr::mutate(GEOID2 = str_sub(GEOID, start = 1, end = 11)) %>% 
+      dplyr::left_join(d1a, by =  c("GEOID2" = "GEOID")) %>% 
       dplyr::select(GEOID, lifeExpectancy = `Life Expectancy`) 
   }else{
     # when geometry is county level.. just cut FIPS to county level and group by that
@@ -74,5 +49,3 @@ getLifeExpectancy <- function(filePath, geometry){
   
   return(geom)
 }  
-
-

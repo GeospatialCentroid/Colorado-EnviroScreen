@@ -1,43 +1,12 @@
-###
-# process wildfire data 
-# carverd@colostate.edu
-# 20210920
-###
 
-
-
-# dataset is available as interger values and classified product, using interger values 
-# 5) whp2020_cnt_conus.tif: continuous integer WHP index values for the conterminous United States, and 
-
-
-# filePath <- "data/wildfire/Data/whp2020_GeoTIF/whp2020_cnt_conus.tif"
-# geometry <- sf::st_read("data/censusBlockGroup/coloradoCensusBlockGroups.geojson")
-# geometry <- sf::st_read("data/censusTract/coloradoCensusTracts.geojson")
-# geometry <- sf::st_read("data/county/coloradoCounties.geojson")
-# # 
-# # library(tictoc)
-# tic()
-# d2 <- getWildfile(filePath = filePath, geometry = geometry)
-# toc()
-# # 143 second on county - raster 
-# # 12.58 seconds on county, 15.66 seconds on census block group - terra 
 
 getWildfire <- function(filePath, geometry){
-  ###
-  # processes raster dataset to various geometry
-  # filePath : relative path to wildfire risk dataset
-  # geometry : sf object representing spatial scale 
-  ###
-  
-  x <- c("sf","dplyr", "terra")
-  lapply(x, require, character.only = TRUE)
-  
   # terra implementation 
   d1 <- terra::rast(filePath)
   
   # read in geometry features 
   g1 <- geometry %>%
-    sf::st_transform(crs = raster::crs(d1))%>%
+    sf::st_transform(crs = terra::crs(d1))%>%
     dplyr::select(GEOID)
   
   # crop-
@@ -54,7 +23,7 @@ getWildfire <- function(filePath, geometry){
     )%>%
     as.data.frame()%>%
     dplyr::select(GEOID, wildfire)
-
+  
   return(geom) 
 }
 

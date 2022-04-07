@@ -19,9 +19,7 @@ sensitivePopulations <- function(geometry, ejscreen){
   d4 <- getLifeExpectancy(filePath = "data/U.S._Life_Expectancy_at_Birth_by_State_and_Census_Tract_-_2010-2015.csv", geometry)
   d5 <- getLowBirthWeight(filePath = "data/lowWeightBirth/Low_Weight_Birth_Rate_(Census_Tracts).csv", geometry)
   d6 <- getPlacesData(filePath = "data/CDC_places/PLACES__Local_Data_for_Better_Health__Census_Tract_Data_2021_release.csv", geometry)
-  ## additional elements needed 
-  index <- length(c(names(d1), names(d2),names(d3),names(d4),names(d5), names(d6)))-6
-  
+
   ## to account for the positive nature of life expectancy
   d4$lifeExpectancy <- -1 * d4$lifeExpectancy
   
@@ -29,19 +27,14 @@ sensitivePopulations <- function(geometry, ejscreen){
   # combine all dataframes
   dataframes <- list(d1,d2,d3,d4,d5,d6)
   
-  df <- joinDataFrames(componentName = "sensitive_populations", dataframes)%>%
-    dplyr::mutate(
-      across(where(is.numeric),
-             .fns = list(pcntl = ~cume_dist(.)*100),
-             .names = "{col}_{fn}")
-    )
+  df <- joinDataFrames(dataframes)
 
   df$lifeExpectancy <- -1 * df$lifeExpectancy
   
   # determine the average value across all features 
-  df$senPop <- rowMeans(df[,((index+3):(index*2 + 2))], na.rm = TRUE)
-  df <- df %>%
-    dplyr::select(-component)
+  df$senPop <- df %>% 
+    select(contains("_pcntl"))%>%
+    rowMeans(na.rm = TRUE)
   
   return(df) 
 }

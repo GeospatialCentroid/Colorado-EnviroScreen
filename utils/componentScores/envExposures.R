@@ -22,29 +22,20 @@ enviromentalExposures <- function(geometry, ejscreen,processingLevel){
     cat("haps")
     d4 <- getHAPS(filePath = "data/haps/APENs 8_24_2021.csv" , geometry)
     cat("other air Pollutants")
-    d5 <- getOtherHAPS(filePath = "data/haps/APENs 8_24_2021.csv" , geometry,processingLevel = processingLevel,overWrite = FALSE)
+    d5 <- getOtherHAPS(filePath = "data/haps/APENs 8_24_2021.csv" , geometry, processingLevel = processingLevel,overWrite = FALSE)
     cat("drinking water")
     d6 <- getDrinkingWater(geometry)
     cat("noise")
     d7 <- getNoise(filePath = "data/noise/CONUS_L50dBA_sumDay_exi.tif", geometry)
-    
-    # ## additional elements needed 
-    index <- length(c(names(d1), names(d2),names(d3),names(d4),names(d5), names(d6), names(d7)))-7
-    
+
+    # combine datasets
     dataframes <- list(d1,d2,d3,d4,d5,d6,d7)
-    # grab index based on the number of inputs 
-    df <- joinDataFrames(componentName = "Environmental_Exposures", dataframes)%>%
-      dplyr::mutate(
-        across(where(is.numeric),
-               .fns = list(pcntl = ~cume_dist(.)*100),
-               .names = "{col}_{fn}")
-      )
+    df <- joinDataFrames(dataframes)
 
     
     # determine the average value across all features 
-    df$envExp <- rowMeans(df[,((index+3):(index*2 + 2))],na.rm = TRUE)
-    df <- df %>%
-      dplyr::select(-component)
-    
+    df$envExp <- df %>% 
+      select(contains("_pcntl"))%>%
+      rowMeans(na.rm = TRUE)
     return(df)
 }

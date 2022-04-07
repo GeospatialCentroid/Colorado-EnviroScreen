@@ -1,32 +1,7 @@
-# get EJScreen ACS census variables
 
-# testing
-# library(tidycensus)
-# library(dplyr)
-# library(tidyr)
-# processingLevel <- "tract"
-# year <-
-# tic()
-# d2 <- getACS(filePath = filePath, geometry = geometry)
-# toc()
-
-
-#'geometry' is one of "block group", "tract", or "county"
 
 getACS <- function(processingLevel, year , overwrite = FALSE){
-  ###
-  # Workflow pulled from the EPA ejscreen methodology
-  # geometry = character descirbing the spatial extent
-  # year = numeric value define the year to pull data from
-  ###
-  # x <- c("tidycensus","dplyr","tidyr")
-  # lapply(x, require, character.only = TRUE)
-  # call census api key
-  # getCensusAPIKey()
-  #### potential for some conditional testing here, but this is getting
-  #### more complicated then it really needs to be... so something to
-  #### come back too.
-  
+ 
   pathToData <- paste0("data/acs/acs_",processingLevel,".csv")
   
   if(file.exists(pathToData) & overwrite == FALSE){

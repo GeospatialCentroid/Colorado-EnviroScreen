@@ -1,38 +1,6 @@
-###
-# process the haps dataset
-# carverd@colostate.edu
-# 20210826
-###
-
-
-### testing
-# filePath <- "data/haps/APENs 8_24_2021.csv"
-# geometry <- sf::st_read("data/censusBlockGroup/coloradoCensusBlockGroups.geojson")
-# geometry <- sf::st_read("data/censusTract/coloradoCensusTracts.geojson")
-# geometry <- sf::st_read("data/county/coloradoCounties.geojson")
-# #
-# # library(tictoc)
-# tic()
-# d2 <- processHAPS( filePath = filePath, geometry = geometry)
-# toc()
-# View(d2)
-# county : 11.3
-# censusTract : 23 sec
-# censusBlockgroup : 36 sec
 
 
 getHAPS <- function(filePath, geometry){
-  ### Processes the HAPS dataset establishing a volume weighted score by geometry
-  # filePath : relative path to csv of HAPS data
-  # geometry : sf object of the census block group, census track, or county
-  # return : a dataframe with geoid and haps score 
-  ###
-
-  x <- c("sf","dplyr")
-  lapply(x, require, character.only = TRUE)
-  
-  #call in normalize function 
-  source("utils/processingFunctions/normalizeVector.R")
   
   # read in dataset and drop locations with no coordinates 
   d1 <- read.csv(filePath)%>%
@@ -77,9 +45,6 @@ getHAPS <- function(filePath, geometry){
     st_transform(crs = 5070) %>% 
     dplyr::select(GEOID)
   
-  # read in the buffer function *** we will remove this but it's here for testing
-  source("utils/processingFunctions/bufferObjects.R")
-  
   # running buffering process. 
   b1 <- bufferObjects(bufferFeature = sp1, 
                       geometry = geom, 
@@ -103,8 +68,6 @@ getHAPS <- function(filePath, geometry){
     dplyr::select(GEOID, bufferFeature_score) 
   
   # join back to geometry object to get full list of features 
-  
-  
   
   ### attached GEOID to all points 
   geom <- geometry %>%

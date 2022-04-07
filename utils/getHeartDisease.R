@@ -1,33 +1,6 @@
-###
-# process heart disease dataset to various geomentries
-# carverd@colostate.edu
-# 20210915
-###
 
-# use HeartDisease_Census_Tract_Estimate for census/blockgroup
-# use HeartDisease_County_Regional_Estimate for county
-#testing
-# library(sf)
-# library(dplyr)
-# library(stringr)
-# filePath <- "data/heartDisease/Heart_Disease_in_Adults_-_CDPHE_Community_Level_Estimates_(Census_Tracts).csv"
-# geometry <- sf::st_read("data/censusBlockGroup/coloradoCensusBlockGroups.geojson")
-# geometry <- sf::st_read("data/censusTract/coloradoCensusTracts.geojson")
-# geometry <- sf::st_read("data/county/coloradoCounties.geojson")
-#
-# tic()
-# d2 <- getHeartDisease(filePath = filePath, geometry = geometry)
-# toc()
 
 getHeartDisease <- function(filePath, geometry){
-  ###
-  # processes the adjusted asthma rate to various geometries
-  # filePath : relative path to asthma dataset
-  # geometry : SF feature of county, census tract or census block group
-  ###
-
-  x <- c("sf","dplyr", "tidyr")
-  lapply(x, require, character.only = TRUE)
 
   # process asthma Data
   d1 <- read.csv(filePath) %>%
@@ -41,15 +14,15 @@ getHeartDisease <- function(filePath, geometry){
     dplyr::select(GEOID, HeartDisease_Census_Tract_Estimate, countyEstimate)
 
 
-  ### select processing level by comparing length of GEOID between objects
+  # select processing level by comparing length of GEOID between objects
   if(nchar(geometry$GEOID[1]) >= nchar(d1$GEOID[1])){
     #add tract-level column to use as join then keep original geoid (tract or block)
-    geom <- as.data.frame(geometry) %>%
-      dplyr::mutate(GEOID = str_sub(GEOID, start = 1, end = 11)) %>%
-      dplyr::left_join(d1, by = "GEOID") %>%
+    geom <- st_drop_geometry(geometry) %>%
+      dplyr::mutate(GEOID2 = str_sub(GEOID, start = 1, end = 11)) %>%
+      dplyr::left_join(d1, by = c("GEOID2" = "GEOID")) %>%
       dplyr::select(GEOID, heartDisease = HeartDisease_Census_Tract_Estimate)
   }else{
-    # when geometry is county level.. just cut FIPS to county level and group by that
+  # when geometry is county level.. just cut FIPS to county level and group by that
     geom <-  d1 %>%
       dplyr::mutate(GEOID = str_sub(GEOID, start = 1, end = 5)) %>%
       dplyr::group_by(GEOID) %>%
@@ -57,3 +30,5 @@ getHeartDisease <- function(filePath, geometry){
   }
   return(geom)
 }
+
+

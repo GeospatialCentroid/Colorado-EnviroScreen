@@ -27,7 +27,7 @@ getOilGas <- function(){
                  density = 4)
   
   # export 
-  saveRDS(object = geom, file = "data/oilGasCommunities/oilgasCommunities.rda")
-  saveRDS(object = geom2, file = "data/oilGasCommunities/oilgasVis.rda")
-  return(paste0("The Oil and Gas community spatial data was writen to data/oilGasCommunities/oilgasCommunities.rda"))
+  saveRDS(object = geom, file = "data/oilGasCommunities/oilgasCommunities.rds")
+  saveRDS(object = geom2, file = "data/oilGasCommunities/oilgasVis.rds")
+  return(paste0("The Oil and Gas community spatial data was writen to data/oilGasCommunities/oilgasCommunities.rds"))
 }
