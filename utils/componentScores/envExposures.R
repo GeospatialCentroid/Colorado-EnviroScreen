@@ -22,7 +22,7 @@ enviromentalExposures <- function(geometry, ejscreen,processingLevel){
     cat("haps")
     d4 <- getHAPS(filePath = "data/haps/APENs 8_24_2021.csv" , geometry)
     cat("other air Pollutants")
-    d5 <- getOtherHAPS(filePath = "data/haps/APENs 8_24_2021.csv" , geometry, processingLevel = processingLevel,overWrite = FALSE)
+    d5 <- getOtherHAPS(filePath = "data/haps/APENs 8_24_2021.csv" , geometry, processingLevel = processingLevel,overWrite = TRUE)
     cat("drinking water")
     d6 <- getDrinkingWater(geometry)
     cat("noise")

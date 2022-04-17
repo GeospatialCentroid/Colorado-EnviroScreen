@@ -1,24 +1,3 @@
-###
-# process the haps dataset for nox,sox,etc
-# carverd@colostate.edu
-# 20211001
-###
-
-
-
-# subset data from the Other Criteria Pollutants (SOx, NOx, CO, PB, PM10)
-# headers sox : site_so2_estim, nox : c(site_no2_estim, site_nox_estim), co : site_co_estim
-# pm10 : site_pm10_estim
-
-### testing
-###
- filePath <- "data/haps/APENs 8_24_2021.csv"
-# geometry <- sf::st_read("data/censusBlockGroup/coloradoCensusBlockGroups.geojson")
-# geometry <- sf::st_read("data/censusTract/coloradoCensusTracts.geojson")
- geometry <- sf::st_read("data/county/coloradoCounties.geojson")
-### 
-
-
 
 getOtherHAPS <- function(filePath, geometry, processingLevel,overWrite=FALSE){
   ### Processes the HAPS dataset establishing a volume weighted score by geometry
@@ -44,7 +23,7 @@ getOtherHAPS <- function(filePath, geometry, processingLevel,overWrite=FALSE){
                   SITE_NOX_ESTIM, SITE_CO_ESTIM, SITE_PM10_ESTIM
     )%>%
     dplyr::group_by(APCD_SITE_ID)%>%
-    dplyr::summarise_all(median ,na.rm = TRUE)
+    dplyr::summarise_all(mean ,na.rm = TRUE)
   
   ### normalize data based on volume of emission 
   d2[,2:6] <- apply(d2[,2:6], MARGIN = 2, FUN = normalizeVector)
@@ -55,9 +34,11 @@ getOtherHAPS <- function(filePath, geometry, processingLevel,overWrite=FALSE){
   
   ### create spatial feature based on sites of interest 
   sp1 <- d1 %>%
+    dplyr::left_join(d2, by = "APCD_SITE_ID")%>%
     dplyr::filter(APCD_SITE_ID %in% d2$APCD_SITE_ID)%>%
     distinct(APCD_SITE_ID, .keep_all = TRUE)%>%
     dplyr::select("APCD_SITE_ID",
+                  "total",
                   "SITE_X_COORDINATE",
                   "SITE_Y_COORDINATE")%>%
     st_as_sf(.,coords=c("SITE_X_COORDINATE","SITE_Y_COORDINATE"),crs=4269)
@@ -65,30 +46,82 @@ getOtherHAPS <- function(filePath, geometry, processingLevel,overWrite=FALSE){
   # Intersection and buffer process -----------------------------------------
   geom2 <- st_transform(geometry, crs = st_crs(5070))%>% select(GEOID)
   d5 <- st_transform(sp1, crs = st_crs(5070))
-  # running buffering process. 
-  b1 <- bufferObjects(bufferFeature = d5, 
-                      geometry = geom2,
-                      dist = seq(250, 1000, by = 250),
-                      weight = c(1, 0.5, 0.2, 0.1)
-  )
-  # select the top score value only, combine with site score, and summarize
-  geom <- b1 %>%
-    st_drop_geometry()%>%
-    arrange(desc(weight)) %>% # ensures highest score is kept
-    dplyr::distinct(GEOID, APCD_SITE_ID , .keep_all = TRUE)%>%
-    group_by(GEOID) %>% 
-    summarise(bufferFeature_score = sum(weight, na.rm = TRUE)) %>%
-    dplyr::select(GEOID, otherHAPS = bufferFeature_score) 
   
-  geom <- left_join(st_drop_geometry(geom2), geom, by = "GEOID")%>%
-    dplyr::mutate(
-      otherHAPS = case_when(
-        is.na(otherHAPS) ~ 0,
-        TRUE ~ otherHAPS
+  if(processingLevel == "censusBlockGroup"){
+    # run process with 100 features at a time 
+    seq1 <- c(seq(100, nrow(d5), 100), nrow(d5))
+    for(i in seq_along(seq1)){
+      print(i)
+      if(i == length(seq1)){
+        # accounting for the last position which will have less then 100 features. 
+        diff <- seq1[i]-seq1[i-1]
+        start <- seq1[i] - (diff-1)
+      }else{
+        start <- seq1[i]-99
+      }
+      
+      end <- seq1[i]
+      b1 <- bufferObjects(bufferFeature = d5[start:end,], 
+                          g2 = geom2,
+                          dist = seq(250, 1000, by = 250),# reversing the order 
+                          weight = c(1,0.5,0.2,0.1 )
       )
-    )
+      # select the top score value only, combine with site score, and summarize
+      metrics <- b1 %>%
+        arrange(desc(weight)) %>% # ensures highest score is kept
+        dplyr::distinct(GEOID, APCD_SITE_ID, .keep_all = TRUE)%>%
+        mutate(score = total * weight)%>%
+        group_by(GEOID) %>% 
+        summarise(bufferFeature_score = sum(score, na.rm = TRUE)) %>%
+        dplyr::select(GEOID, otherHAPS = bufferFeature_score) 
+      #compile Dataframe 
+      if(i == 1){
+        m2 <- metrics
+      }else{
+        m2 <- bind_rows(m2, metrics)
+      }
+    }
+    geom <- left_join(st_drop_geometry(geom2), m2, by = "GEOID")%>%
+      dplyr::mutate(
+        otherHAPS = case_when(
+          is.na(otherHAPS) ~ 0,
+          TRUE ~ otherHAPS
+        )
+      )%>% dplyr::group_by(GEOID)%>%
+      dplyr::summarise(otherHAPS = sum(otherHAPS))
+    
+    
+    write_csv(geom, file = file )
+  }else{
   
-  write_csv(geom, file = file )
+  ## need to process through forloop for  memories concerns 
+  # for(i in seq_along(d5$APCD_SITE_ID)){
+    b1 <- bufferObjects(bufferFeature = d5, 
+                        g2 = geom2,
+                        dist = seq(250, 1000, by = 250),# reversing the order 
+                        weight = c(1,0.5,0.2,0.1 ))
+    
+    # select the top score value only, combine with site score, and summarize
+    metrics <- b1 %>%
+      arrange(desc(weight)) %>% # ensures highest score is kept
+      dplyr::distinct(GEOID, APCD_SITE_ID, .keep_all = TRUE)%>%
+      mutate(score = total * weight)%>%
+      group_by(GEOID) %>% 
+      summarise(bufferFeature_score = sum(score, na.rm = TRUE)) %>%
+      dplyr::select(GEOID, otherHAPS = bufferFeature_score) 
+
+    geom <- left_join(st_drop_geometry(geom2), metrics, by = "GEOID")%>%
+      dplyr::mutate(
+        otherHAPS = case_when(
+          is.na(otherHAPS) ~ 0,
+          TRUE ~ otherHAPS
+        )
+      )%>%
+      dplyr::group_by(GEOID)%>%
+      dplyr::summarise(otherHAPS = sum(otherHAPS))
+    
+     write_csv(geom, file = file )
+    }
   }
   return(geom)
 }

@@ -115,10 +115,10 @@ generateDataForShiny <- function(removeNativeLand, version){
       ,"Proximity to RMP sites Percentile"="rmpProx_pcntl"
       ,"Proximity to hazardous waste facilities" ="tsdfProx"
       ,"Proximity to hazardous waste facilities Percentile"="tsdfProx_pcntl"
-      ,"Proximiy to Oil and Gas" = "proxyOilGas"
-      ,"Proximiy to Oil and Gas Percentile" = "proxyOilGas_pcntl"
-      ,"Proximiy to Mining and Smelting" = "mining"
-      ,"Proximiy to Mining and Smelting Percentile" = "mining_pcntl"
+      ,"Proximity to Oil and Gas" = "proxyOilGas"
+      ,"Proximity to Oil and Gas Percentile" = "proxyOilGas_pcntl"
+      ,"Proximity to Mining" = "mining"
+      ,"Proximity to Mining Percentile" = "mining_pcntl"
       ,"Impaired Surface Water" = "surfaceWater"
       ,"Impaired Surface Water Percentile" = "surfaceWater_pcntl"
       # climate 
@@ -143,12 +143,12 @@ generateDataForShiny <- function(removeNativeLand, version){
       ,"Life expectancy Percentile"="lifeExpectancy_pcntl"
       ,"Low weight birth rate"="lowBirthWeight"
       ,"Low weight birth rate Percentile"="lowBirthWeight_pcntl"
-      ,"Cancer Incidence"="cancer"
-      ,"Cancer Incidence Percentile"="cancer_pcntl"
-      ,"Diabetes Incidence"="diabetes"
-      ,"Diabetes Incidence Percentile"="diabetes_pcntl"
-      ,"Mental Health Incidence"="mentalHealth"
-      ,"Mental Health Incidence Percentile"="mentalHealth_pcntl"
+      ,"Cancer prevalence"="cancer"
+      ,"Cancer prevalence Percentile"="cancer_pcntl"
+      ,"Diabetes prevalence"="diabetes"
+      ,"Diabetes prevalence Percentile"="diabetes_pcntl"
+      ,"Mental Health Indicator"="mentalHealth"
+      ,"Mental Health Indicator Percentile"="mentalHealth_pcntl"
       # SocEco
       ,"Percent people of color"="peopleOfColor"
       ,"Percent people of color Percentile" = "peopleOfColor_pcntl"
@@ -171,26 +171,44 @@ generateDataForShiny <- function(removeNativeLand, version){
     mutate(across(where(is.numeric), round, digits=2))%>%
     sf::st_as_sf()
 
-  # add label for Coal, oil/gas, rural  -------------------------------------
+  # add label for Coal, oil/gas, rural, justice 40, and di community -------------------------------------
   coal <- readRDS("data/coalCommunities/coalCommunities.rds")%>%
-    dplyr::select("GEOID","coal")%>%
+    dplyr::select("GEOID","Coal Community" = "coal")%>%
     st_drop_geometry()
   og <- readRDS("data/oilgasCommunities/oilgasCommunities.rds")%>%
-    dplyr::select("GEOID","oilGas")%>%
+    dplyr::select("GEOID","Oil and Gas Community" = "oilGas")%>%
     st_drop_geometry()
   rural <- readRDS("data/ruralCommunities/ruralCommunities.rds")%>%
-    dplyr::select("GEOID","rural")%>%
+    dplyr::select("GEOID","Rural Community" = "rural")%>%
+    st_drop_geometry()
+  justice40 <- readRDS("data/justice40/justice40.rds") %>%
+    dplyr::select("GEOID","Justice 40 Community" = "Identified.as.disadvantaged")%>%
+    st_drop_geometry()
+  diCommunity <- readRDS("data/diCommunities/diCommunities.rds")%>%
+    dplyr::select("GEOID","Disproportionately Impacted Community" = "DI_community")%>%
+    dplyr::mutate("Disproportionately Impacted Community" = case_when(
+      `Disproportionately Impacted Community` == 1 ~ TRUE
+      )
+    )%>%
     st_drop_geometry()
   
+  # county level joins 
   df$GEOID2 <- str_sub(df$GEOID, 1,5)
   df <- dplyr::left_join(x = df ,y = coal, by = c("GEOID2" = "GEOID"))%>%
     dplyr::left_join(y = og, by = c("GEOID2" = "GEOID"))%>%
     dplyr::left_join(y = rural, by = c("GEOID2" = "GEOID"))%>%
     dplyr::select(-"GEOID2")
   
+  # census tract level joins 
+  df$GEOID3 <- str_sub(df$GEOID, 1,11)
+  df <- dplyr::left_join(x = df ,y = justice40, by = c("GEOID3" = "GEOID"))
+
+  # census block group join 
+  df <- dplyr::left_join(x = df ,y = diCommunity, by = c("GEOID" = "GEOID"))
+  
+  
   # rdata delete_dsn 
   saveRDS(df, file = paste0("data/envScreenScores/allScores_",version,".rds"))
 }
 
-# export feature ----------------------------------------------------------
 

@@ -15,7 +15,7 @@ pacman::p_load(
   tictoc, # running processing time checks
   vroom, # loading large datasets
   terra, # processing rasters
-  tmap, # visualize spatial data
+  #tmap, # visualize spatial data
   arcpullr, # pull objects from ESRI REST api,
   purrr, # joining and other iterative processes
   # leaflet, # mapping features
@@ -41,13 +41,14 @@ pullGeometryDatasets(
 
 
 # Version -----------------------------------------------------------------
-version <- "2"
+version <- "4"
 
 
 # tidycensus key ----------------------------------------------------------
 # key <- 
 # getCensusAPIKey(key)
 
+overWriteComponentScores <- FALSE
 
 for(val1 in c( "county","censusTract","censusBlockGroup")){ 
   processingLevel <- val1
@@ -61,53 +62,51 @@ for(val1 in c( "county","censusTract","censusBlockGroup")){
 
 
 # Exposures ---------------------------------------------------------------
-  tic()
-  envExposures <- enviromentalExposures(geometry = geometry, ejscreen = ejscreen,processingLevel = processingLevel)
-  toc()
-  # county : 86.62 sec elapsed
-  # censusTract : 66.48 sec elapsed
-  # censusBlockGroups : 135.71 sec elapsed
-
-
+  f1 <- paste0("data/envScreenScores/",processingLevel,"/envExposures_",version,".csv")
+  # if(file.exists(f1) & overWriteComponentScores == FALSE){
+  #   envExposures <- read_csv(f1)
+  # }else{
+    envExposures <- enviromentalExposures(geometry = geometry, ejscreen = ejscreen,processingLevel = processingLevel)
+    write_csv(x = envExposures, f1 )
+  # }
 
 # Environmental Effects ---------------------------------------------------
-  tic()
-  envEffects <- enviromentalEffects(geometry = geometry,
-                                    processingLevel = processingLevel,
-                                    ejscreen = ejscreen)
-  toc()
-  # county : 257.29 sec elapsed
-  # censusTract : 1.11 sec elapsed
-  # censusBlockGroups : 1.17 sec elapsed
-
+  f2 <- paste0("data/envScreenScores/",processingLevel,"/envEffects_",version,".csv")
+  if(file.exists(f2) & overWriteComponentScores == FALSE){
+    envEffects <- read_csv(f2)
+  }else{
+    envEffects <- enviromentalEffects(geometry = geometry,processingLevel = processingLevel,ejscreen = ejscreen)
+    write_csv(x = envEffects, f2 )
+  }
 
 
 # Climate Impacts ---------------------------------------------------------
-  tic()
-  climateData <- climate(geometry)
-  toc()
-  # county : 38.95 sec elapsed
-  # censusTract :37.2 sec elapsed
-  # censusBlockGroups : 66.16 sec elapsed
+  f3 <- paste0("data/envScreenScores/",processingLevel,"/climate_",version,".csv")
+  if(file.exists(f3) & overWriteComponentScores == FALSE){
+    climateData <- read_csv(f3)
+  }else{
+    climateData <- climate(geometry)
+    write_csv(x = climateData, f3)
+  }
+  
+# Socioeconomic Factors ---------------------------------------------------
+  f4 <- paste0("data/envScreenScores/",processingLevel,"/senPop_",version,".csv")
+  if(file.exists(f4) & overWriteComponentScores == FALSE){
+    senPop <- read_csv(f4)
+  }else{
+    senPop <- sensitivePopulations(geometry = geometry, ejscreen = ejscreen)
+    write_csv(x = senPop, f4)
+  }
 
 # Socioeconomic Factors ---------------------------------------------------
-  tic()
-  senPop <- sensitivePopulations(geometry = geometry, ejscreen = ejscreen)
-  toc()
-  # county : 7.47 sec elapsed
-  # censusTract : 7.78 sec elapsed
-  # censusBlockGroups : 8.75 sec elapsed
-
-# Socioeconomic Factors ---------------------------------------------------
-  tic()
-  socEco <- socioEconomicFactors(geometry,ejscreen, acsData, processingLevel = processingLevel)
-  toc()
-  # county : 0.66 sec elapsed
-  # censusTract : 2.8 sec elapsed
-  # censusBlockGroups : 4 sec elapsed
-
-
-
+  f5 <- paste0("data/envScreenScores/",processingLevel,"/socEco_",version,".csv")
+  if(file.exists(f5) & overWriteComponentScores == FALSE){
+    socEco <- read_csv(f5)
+  }else{
+    socEco <- socioEconomicFactors(geometry,ejscreen, acsData, processingLevel = processingLevel)
+    write_csv(x = socEco, f5)
+  }
+  
   # merge all datasets on geoid
   # apply function across all features
   dataframes <- list(envExposures,envEffects,climateData,senPop,socEco)
@@ -118,11 +117,6 @@ for(val1 in c( "county","censusTract","censusBlockGroup")){
   # write output ------------------------------------------------------------
   write_csv(df,path = paste0("data/envScreenScores/",processingLevel,"_",version,".csv"))
 }
-
-
-
-# generate dataset for shiny input ----------------------------------------
-generateDataForShiny(removeNativeLand = TRUE,version = version)
 
 
 # Stand alone map Elements ------------------------------------------------
@@ -137,3 +131,6 @@ getRural()
 ### justice40 layer 
 getJustice40(filePath = "data/justice40/Screening_Tool_Data/communities-2022-03-21-1359GMT.csv", overWrite = FALSE)
 
+
+# generate dataset for shiny input ----------------------------------------
+generateDataForShiny(removeNativeLand = TRUE,version = version)

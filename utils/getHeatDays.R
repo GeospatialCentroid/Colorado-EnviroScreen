@@ -1,4 +1,3 @@
-# filePath <- "data/heatDays/data_172346.csv"
 
 
 getHeatDays <- function(filePath, geometry){

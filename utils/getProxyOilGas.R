@@ -36,8 +36,8 @@ getProxyOilGas <- function(geometry, processingLevel, overWrite = FALSE){
       dplyr::filter(date >= mdy("01/01/2016") & date <= mdy("12/31/2021"))%>%
       dplyr::select(class, id)
     
-    st_crs(d5) <- crs("+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs")
-    d5 <- st_transform(x = d5,crs = st_crs(d4))
+    st_crs(d5) <- st_crs("+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs")
+    d5 <- st_transform(x = d5, crs = st_crs(d4))
     
     # combine into single feature 
     sp <- bind_rows(d1,d2,d3,d4,d5)
@@ -46,41 +46,77 @@ getProxyOilGas <- function(geometry, processingLevel, overWrite = FALSE){
     geom2 <- st_transform(geometry, crs = st_crs(5070))%>% select(GEOID)
     d6 <- st_transform(sp, crs = st_crs(5070))
     # running buffering process. 
-    ## need to process through forloop for  memories concerns 
-    for(i in seq_along(geom2$GEOID)){
-      print(i)
-      b1 <- bufferObjects(bufferFeature = d6[i,], 
-                          geometry = geom2,
-                          dist = seq(250, 1000, by = 250),
-                          weight = c(1, 0.5, 0.2, 0.1)
-      )
-      # select the top score value only, combine with site score, and summarize
-      metrics <- b1 %>%
-        st_drop_geometry()%>%
-        arrange(desc(weight)) %>% # ensures highest score is kept
-        dplyr::distinct(GEOID, id, .keep_all = TRUE)%>%
-        group_by(GEOID) %>% 
-        summarise(bufferFeature_score = sum(weight, na.rm = TRUE)) %>%
-        dplyr::select(GEOID, proxyOilGas = bufferFeature_score) 
-      #compile Dataframe 
-      if(i == 1){
-        geom <- metrics
-      }else{
-        geom <- bind_rows(geom, metrics)
+    ## need to process through for loop for  memories concerns for census block group
+    if(processingLevel == "censusBlockGroup"){
+      # run process with 100 features at a time 
+      seq1 <- c(seq(100, nrow(d6), 100), nrow(d6))
+      for(i in seq_along(seq1)){
+        print(i)
+        if(i == length(seq1)){
+          # accounting for the last position which will have less then 100 features. 
+          diff <- seq1[i]-seq1[i-1]
+          start <- seq1[i] - (diff-1)
+        }else{
+          start <- seq1[i]-99
+        }
+        end <- seq1[i]
+        b1 <- bufferObjects(bufferFeature = d6[start:end,], 
+                            g2 = geom2,
+                            dist = seq(250, 1000, by = 250),# reversing the order 
+                            weight = c(1,0.5,0.2,0.1 )
+        )
+        # select the top score value only, combine with site score, and summarize
+        metrics <- b1 %>%
+          arrange(desc(weight)) %>% # ensures highest score is kept
+          dplyr::distinct(GEOID, id, .keep_all = TRUE)%>%
+          group_by(GEOID) %>% 
+          summarise(bufferFeature_score = sum(weight, na.rm = TRUE)) %>%
+          dplyr::select(GEOID, proxyOilGas = bufferFeature_score) 
+        #compile Dataframe 
+        if(i == 1){
+          m2 <- metrics
+        }else{
+          m2 <- bind_rows(m2, metrics)
+        }
       }
+      geom <- left_join(st_drop_geometry(geom2), m2, by = "GEOID")%>%
+        dplyr::mutate(
+          proxyOilGas = case_when(
+            is.na(proxyOilGas) ~ 0,
+            TRUE ~ proxyOilGas
+          )
+        )%>% dplyr::group_by(GEOID)%>%
+        dplyr::summarise(proxyOilGas = sum(proxyOilGas))
+      
+      
+      write_csv(geom, file = file )
+    }else{
+      
+        b1 <- bufferObjects(bufferFeature = d6, 
+                            g2 = geom2,
+                            dist = seq(250, 1000, by = 250),# reversing the order 
+                            weight = c(1,0.5,0.2,0.1 )
+        )
+        
+        # select the top score value only, combine with site score, and summarize
+        metrics <- b1 %>%
+          arrange(desc(weight)) %>% # ensures highest score is kept
+          dplyr::distinct(GEOID, id, .keep_all = TRUE)%>%
+          group_by(GEOID) %>% 
+          summarise(bufferFeature_score = sum(weight, na.rm = TRUE)) %>%
+          dplyr::select(GEOID, proxyOilGas = bufferFeature_score) 
+        rm(b1)
+      
+      geom <- left_join(st_drop_geometry(geom2), metrics, by = "GEOID")%>%
+        dplyr::mutate(
+          proxyOilGas = case_when(
+            is.na(proxyOilGas) ~ 0,
+            TRUE ~ proxyOilGas
+          )
+        )
+      write_csv(geom, file = file )
     }
     
-    geom <- left_join(st_drop_geometry(geom2), geom, by = "GEOID")%>%
-      dplyr::mutate(
-        proxyOilGas = case_when(
-          is.na(proxyOilGas) ~ 0,
-          TRUE ~ proxyOilGas
-        )
-      )%>%
-      dplyr::group_by(GEOID)%>%
-      dplyr::summarise(proxyOilGas = sum(proxyOilGas))
-    
-    write_csv(geom, file = file )
   }
   return(geom)
 }

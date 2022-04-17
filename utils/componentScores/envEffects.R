@@ -17,7 +17,7 @@ enviromentalEffects <- function(geometry, ejscreen, processingLevel){
   d2 <- getSurfaceWater(filePath = "data/sufaceWater/Streams303dLayerFinal.shp", 
                         processingLevel = processingLevel, geometry,compile = FALSE, overWrite = FALSE)
   d3 <- getMines(geometry,processingLevel = processingLevel, overWrite = FALSE)
-  d4 <- getProxyOilGas(geometry, processingLevel = processingLevel, overWrite = FALSE)
+  d4 <- getProxyOilGas(geometry, processingLevel = processingLevel, overWrite = TRUE)
   
   ###Temp features for continued shiny work 
   d2 <- d2[!duplicated(d2$GEOID), ]

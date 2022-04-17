@@ -31,6 +31,7 @@ getHAPS <- function(filePath, geometry){
 
   ### create spatial feature based on sites of interest 
   sp1 <- d1 %>%
+    dplyr::left_join(d2, by = "APCD_SITE_ID")%>%
     dplyr::filter(APCD_SITE_ID %in% d2$APCD_SITE_ID)%>%
     distinct(APCD_SITE_ID, .keep_all = TRUE)%>%
     dplyr::select("APCD_SITE_ID",   # rename for input into buffer process
@@ -47,7 +48,7 @@ getHAPS <- function(filePath, geometry){
   
   # running buffering process. 
   b1 <- bufferObjects(bufferFeature = sp1, 
-                      geometry = geom, 
+                      g2 = geom, 
                       dist = seq(250, 1000, by = 250),
                       weight = c(1, 0.5, 0.2, 0.1)
   )
@@ -70,11 +71,15 @@ getHAPS <- function(filePath, geometry){
   # join back to geometry object to get full list of features 
   
   ### attached GEOID to all points 
-  geom <- geometry %>%
-    dplyr::select(GEOID)%>%
+  geom <- st_drop_geometry(geometry) %>%
     dplyr::left_join(y = bufferFeature_scores,by = "GEOID")%>%
-    as.data.frame()%>%
-    dplyr::select(GEOID, HAPS = bufferFeature_score)
+    dplyr::mutate(
+      HAPS = case_when(
+        is.na(bufferFeature_score) ~ 0,
+        TRUE ~ bufferFeature_score
+      )
+    )%>%
+    dplyr::select(GEOID, HAPS)
 
   return(geom)
 }
