@@ -15,14 +15,11 @@ pacman::p_load(
   tictoc, # running processing time checks
   vroom, # loading large datasets
   terra, # processing rasters
-  #tmap, # visualize spatial data
   arcpullr, # pull objects from ESRI REST api,
   purrr, # joining and other iterative processes
-  # leaflet, # mapping features
-  # leaflet.extras, # search functionality
-  tidyr, 
-  rmapshaper,
-  readr,
+  tidyr, # data organization
+  rmapshaper, # spatail data simplification
+  readr, # 
   lubridate
 )
 
@@ -46,11 +43,11 @@ version <- "4"
 
 # tidycensus key ----------------------------------------------------------
 # key <- 
-# getCensusAPIKey(key)
+# tidycensus::census_api_key(key,install = TRUE)
 
-overWriteComponentScores <- FALSE
+overWriteComponentScores <- TRUE
 
-for(val1 in c( "county","censusTract","censusBlockGroup")){ 
+for(val1 in c( "censusTract","censusBlockGroup")){ #"county","censusTract","censusBlockGroup"
   processingLevel <- val1
   # call in spatial object at give extent
   geometry <- setSpatialData(dataFolder = "data/", scale = processingLevel)
@@ -58,17 +55,16 @@ for(val1 in c( "county","censusTract","censusBlockGroup")){
   ### EJScreen and ACS data contributes to multiple components run it here then split out
   ejscreen <- getEjScreen2021(geometry = geometry ,processingLevel = processingLevel)
   ### add condition to test for the existence of a specific file based on geom
-  acsData <- getACS(processingLevel = processingLevel, year = 2019)
-
+  acsData <- getACS(processingLevel = processingLevel, year = 2019, overwrite = FALSE)
 
 # Exposures ---------------------------------------------------------------
   f1 <- paste0("data/envScreenScores/",processingLevel,"/envExposures_",version,".csv")
-  # if(file.exists(f1) & overWriteComponentScores == FALSE){
-  #   envExposures <- read_csv(f1)
-  # }else{
+  if(file.exists(f1) & overWriteComponentScores == FALSE){
+    envExposures <- read_csv(f1)
+  }else{
     envExposures <- enviromentalExposures(geometry = geometry, ejscreen = ejscreen,processingLevel = processingLevel)
     write_csv(x = envExposures, f1 )
-  # }
+  }
 
 # Environmental Effects ---------------------------------------------------
   f2 <- paste0("data/envScreenScores/",processingLevel,"/envEffects_",version,".csv")
@@ -89,7 +85,7 @@ for(val1 in c( "county","censusTract","censusBlockGroup")){
     write_csv(x = climateData, f3)
   }
   
-# Socioeconomic Factors ---------------------------------------------------
+# Sensitive populations Factors ---------------------------------------------------
   f4 <- paste0("data/envScreenScores/",processingLevel,"/senPop_",version,".csv")
   if(file.exists(f4) & overWriteComponentScores == FALSE){
     senPop <- read_csv(f4)
@@ -115,13 +111,13 @@ for(val1 in c( "county","censusTract","censusBlockGroup")){
   df <- finalComponentScore(dataframes)
 
   # write output ------------------------------------------------------------
-  write_csv(df,path = paste0("data/envScreenScores/",processingLevel,"_",version,".csv"))
+  write_csv(df,file = paste0("data/envScreenScores/",processingLevel,"_",version,"_geomZero.csv"))
 }
-
+ 
 
 # Stand alone map Elements ------------------------------------------------
 ### DI communities
-getDI(overWrite = TRUE)
+getDI(removeNativeLand = TRUE, overWrite = FALSE)
 ### Oil and gas community,
 getOilGas()
 ### Coal power plant community,
@@ -129,8 +125,11 @@ getCoal()
 ### urban/rural
 getRural()
 ### justice40 layer 
-getJustice40(filePath = "data/justice40/Screening_Tool_Data/communities-2022-03-21-1359GMT.csv", overWrite = FALSE)
+getJustice40(filePath = "data/justice40/Screening_Tool_Data/communities-2022-03-21-1359GMT.csv", removeNativeLand = TRUE, overWrite = TRUE)
 
 
 # generate dataset for shiny input ----------------------------------------
-generateDataForShiny(removeNativeLand = TRUE,version = version)
+generateDataForShiny(removeNativeLand = TRUE,
+                     removeZeroPop = TRUE,
+                     version = version,
+                     spanish = FALSE)

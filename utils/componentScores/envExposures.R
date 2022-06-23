@@ -36,6 +36,6 @@ enviromentalExposures <- function(geometry, ejscreen,processingLevel){
     # determine the average value across all features 
     df$envExp <- df %>% 
       select(contains("_pcntl"))%>%
-      rowMeans(na.rm = TRUE)
+      apply(MARGIN = 1, FUN = gm_mean)
     return(df)
 }

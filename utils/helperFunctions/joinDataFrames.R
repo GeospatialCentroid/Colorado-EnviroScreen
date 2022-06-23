@@ -22,10 +22,10 @@ joinDataFrames <- function(dataframes){
   for(i in 2:length(names(df))){
     # grab geoid and specific indicator 
     df2 <- df[ ,c(1,i)]
-    # remove the zero and NA values from the percentile calculation
+    # NA values from the percentile calculation
     df2a <- df2 %>%
-      filter(across(where(is.numeric), ~!is.na(.)),
-             across(where(is.numeric), ~. != 0))%>%
+      filter(across(where(is.numeric), ~!is.na(.)))%>%
+             # across(where(is.numeric), ~. != 0))
       dplyr::mutate(
         across(where(is.numeric),
                .fns = list(pcntl = ~cume_dist(.)*100),

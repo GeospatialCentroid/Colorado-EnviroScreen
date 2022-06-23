@@ -34,7 +34,7 @@ sensitivePopulations <- function(geometry, ejscreen){
   # determine the average value across all features 
   df$senPop <- df %>% 
     select(contains("_pcntl"))%>%
-    rowMeans(na.rm = TRUE)
+    apply(MARGIN = 1, FUN = gm_mean)
   
   return(df) 
 }

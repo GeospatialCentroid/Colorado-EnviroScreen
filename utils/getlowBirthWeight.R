@@ -19,7 +19,7 @@ getLowBirthWeight <- function(filePath, geometry){
     # when geometry is county level.. just cut FIPS to county level and group by that
     geom <-  d1 %>% mutate(GEOID = str_sub(GEOID, start = 1, end = 5)) %>% 
       group_by(GEOID) %>% 
-      summarise(lowBirthWeight = median(LWB_ADJRATE, na.rm = TRUE))
+      summarise(lowBirthWeight = mean(LWB_ADJRATE, na.rm = TRUE))
   }
   return(geom)
 }

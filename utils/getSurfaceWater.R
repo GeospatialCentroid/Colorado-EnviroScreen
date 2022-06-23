@@ -8,8 +8,8 @@ getSurfaceWater <- function(filePath,processingLevel, geometry, overWrite = FALS
       lapply(read_csv)%>%
       bind_rows()
     write_csv(files, file = file )
-    
   }
+  
   # run the process 
   if(file.exists(file) & isFALSE(overWrite)){
     geom <- read_csv(file)
@@ -22,6 +22,7 @@ getSurfaceWater <- function(filePath,processingLevel, geometry, overWrite = FALS
   ### Data wrangling ----
   #   - create new variables for use assignments, assessment status, 
   #     impairment status, fully supported status, etc.
+  
   
   stream_uses <- streams %>%
     mutate( # Uses
@@ -44,23 +45,26 @@ getSurfaceWater <- function(filePath,processingLevel, geometry, overWrite = FALS
       Assessed_char = as.character(Assessed)) 
   
   #### Overlay streams and geographic boundaries ----
-  geometry <- geometry %>% st_transform(crs = st_crs(stream_uses))
+  geometry <- geometry %>% st_transform(crs = st_crs(stream_uses)) %>% select("GEOID")
   
   
-  geom <- data.frame(matrix(nrow = nrow(geometry), ncol = 2))
-  names(geom) <- c("GEOID", "surfaceWater")
-  for(i in seq_along(geometry$STATEFP)){
+  geom <- data.frame(matrix(nrow = nrow(geometry), ncol = 3))
+  names(geom) <- c("GEOID", "AvgPercentImpaired", "PcntUnassessed")
+  for(i in seq_along(geometry$GEOID)){
     print(i)
     g1 <- geometry[i, ]
     geom$GEOID[i] <- g1$GEOID
     
     overlay <- st_intersection(stream_uses, g1) # very slow 
     if(nrow(overlay)==0){
-      geom$surfaceWater[i] <- NA
+      geom$AvgPercentImpaired[i] <- NA
+      geom$PcntUnassessed[i] <- NA
+      
     }else{
       overlay$seglength <- st_length(overlay) 
-      geom$surfaceWater[i] <- overlay %>%
-        st_drop_geometry() %>% # drop stream segment geometry for faster processing.
+       
+       d1 <-  overlay %>%
+        st_drop_geometry()%>% # drop stream segment geometry for faster processing.
         mutate(
           #convert segment length in meters to miles
           stream_mi = as.numeric(seglength)*0.000621, 
@@ -69,39 +73,58 @@ getSurfaceWater <- function(filePath,processingLevel, geometry, overWrite = FALS
           # Stream segment length multiplied by the percent of uses impaired.
           # These will be added together for the entire county in the
           # "summarise" step below. 
-          numerator_impaired = stream_mi*PercentUsesImpaired,
+          numerator_impaired = stream_mi*(PercentUsesImpaired/100),
           
           # Calculate the numerator for percent unassessed
           # Stream segment length for completely unassessed streams. 
           # These will be added together for the entire county in the 
           # "summarise" step below.
           numerator_completelyunassessed = ifelse(Assessed == 0, stream_mi, 0))%>%
-        group_by(GEOID) %>% # calculate measures for each county
-        summarise(TotalStreamLengthMi = sum(stream_mi),
+          dplyr::summarise(TotalStreamLengthMi = sum(stream_mi),
                   numerator_impaired = sum(numerator_impaired),
-                  numerator_completelyunassessed = sum(numerator_completelyunassessed)) %>%
-        ungroup() %>%
-        mutate(AvgPercentImpaired = numerator_impaired/TotalStreamLengthMi) %>%
-        # Add county spatial boundaries to dataframe
-        dplyr::select(surfaceWater = AvgPercentImpaired)
-    }
+                  numerator_completelyunassessed = sum(numerator_completelyunassessed))%>%
+         ## because we are working on single counties we can not apply percent rank function until alfter all geometries 
+         ## have been resolved. 
+         mutate(AvgPercentImpaired = numerator_impaired/TotalStreamLengthMi,
+               PcntUnassessed = 100*numerator_completelyunassessed/TotalStreamLengthMi
+               )
+        
+       geom$AvgPercentImpaired[i] <- d1$AvgPercentImpaired
+       geom$PcntUnassessed[i] <- d1$PcntUnassessed
     
-    if(i %% 10 ==0){
-      df2 <- geom[(i-10):i, ] %>% dplyr::mutate(surfaceWater = as.character(surfaceWater))
+    }
+    # condition for writing out intermediate files every 100 
+    if(i %% 100 ==0){
+      df2 <- geom[(i-100):i, ]
       write_csv(x = df2,
-              file = paste0("data/sufaceWater/outputTemp/surfaceWater",i - 10, "_",i,"_",processingLevel,".csv")
+              file = paste0("data/sufaceWater/outputTemp/surfaceWater",i - 100, "_",i,"_",processingLevel,".csv")
       )
     }
+    # condition for writing out file set of files 
+    if(i == nrow(geometry)){
+      val <- nrow(geometry)
+      if(nchar(val) > 2){
+      start <- paste0(stringr::str_sub(val,start = 1,end = 2), "01")
+      df2 <- geom[start:val, ]
+        write_csv(x = df2,
+                file = paste0("data/sufaceWater/outputTemp/surfaceWater",i - 100, "_",i,"_",processingLevel,".csv")
+        )
+      }
+    }
+
   }
-  ### need to determine if we want to consider no stream a NA or a zero 
-  # geom <- left_join(st_drop_geometry(geometry), geom, by = "GEOID")%>%
-  #   dplyr::mutate(
-  #     surfaceWater = case_when(
-  #       is.na(surfaceWater) ~ 0,
-  #       TRUE ~ surfaceWater
-  #     )
-  #   )
+  
+  geom <- geom %>%
+    dplyr::mutate(
+      ImpairedPctl = percent_rank(AvgPercentImpaired)*100, 
+      UnassessedPctl = percent_rank(PcntUnassessed)*100, 
+      CombinedMetric = ImpairedPctl + UnassessedPctl/2) %>%
+    dplyr::select(
+      "GEOID", "surfaceWater"= "CombinedMetric"
+    )
+  
   write_csv(geom, file = file )
   }
+  
   return(geom)
 }

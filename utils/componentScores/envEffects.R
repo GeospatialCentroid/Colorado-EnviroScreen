@@ -17,7 +17,7 @@ enviromentalEffects <- function(geometry, ejscreen, processingLevel){
   d2 <- getSurfaceWater(filePath = "data/sufaceWater/Streams303dLayerFinal.shp", 
                         processingLevel = processingLevel, geometry,compile = FALSE, overWrite = FALSE)
   d3 <- getMines(geometry,processingLevel = processingLevel, overWrite = FALSE)
-  d4 <- getProxyOilGas(geometry, processingLevel = processingLevel, overWrite = TRUE)
+  d4 <- getProxyOilGas(geometry, processingLevel = processingLevel, overWrite = FALSE)
   
   ###Temp features for continued shiny work 
   d2 <- d2[!duplicated(d2$GEOID), ]
@@ -27,10 +27,11 @@ enviromentalEffects <- function(geometry, ejscreen, processingLevel){
   dataframes <- list(d1,d2,d3,d4)
   df <- joinDataFrames(dataframes)
   
+  
   # determine the average value across all features 
   df$envEff <- df %>% 
     select(contains("_pcntl"))%>%
-    rowMeans(na.rm = TRUE)
+    apply(MARGIN = 1, FUN = gm_mean)
   
   return(df)
 }

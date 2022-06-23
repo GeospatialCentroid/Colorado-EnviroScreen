@@ -6,7 +6,7 @@ getHAPS <- function(filePath, geometry){
   d1 <- read.csv(filePath)%>%
     dplyr::filter(SITE_X_COORDINATE != 0)
   
-  ### Generate 5 year median values for all pollutants 
+  ### Generate 5 year mean values for all pollutants 
   # select columns of interest 
   d2 <- d1 %>% 
     dplyr::select(APCD_SITE_ID                ,SITE_100414_ESTIM

@@ -23,6 +23,7 @@ climate <- function(geometry){
   # determine the average value across all features 
   df$climate <- df %>% 
     select(contains("_pcntl"))%>%
-    rowMeans(na.rm = TRUE)
+    apply(MARGIN = 1, FUN = gm_mean)
+  
   return(df)
 }

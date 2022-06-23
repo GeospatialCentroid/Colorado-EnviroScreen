@@ -1,7 +1,7 @@
 
 
 
-getJustice40 <- function(filePath,overWrite = FALSE){
+getJustice40 <- function(filePath, removeNativeLand, overWrite = FALSE){
   
   pathToData <- "data/justice40/justice40.rds"
   
@@ -22,7 +22,17 @@ getJustice40 <- function(filePath,overWrite = FALSE){
       dplyr::select("GEOID","County_Name" , "Total threshold criteria exceeded", "Identified as disadvantaged")%>%
       dplyr::filter(`Identified as disadvantaged` == TRUE)%>%
       rmapshaper::ms_simplify()
-    # export result 
-    saveRDS(object = ct, pathToData)
+    
+  if(removeNativeLand == TRUE){
+      censusTractsNative <- c("08083941100","08067940400", "08067940300", "08007940400")
+      features <- c()
+      for(i in seq_along(censusTractsNative)){
+        features <- c(features, grep(pattern =  censusTractsNative[i], x = ct$GEOID))
+      }
+      ct <- ct[-features, ]
+    }
+    
+  # export result 
+  saveRDS(object = ct, pathToData)
   }
 }

@@ -12,7 +12,7 @@
 
 
 
-getDI <- function(overWrite = FALSE){
+getDI <- function(removeNativeLand, overWrite = FALSE){
   # overWrite defines if you want to force the file to be recreated.
 
   pathToData <- "data/diCommunities/diCommunities.rds"
@@ -79,6 +79,18 @@ getDI <- function(overWrite = FALSE){
         )
         
       )
+    
+    
+    if(removeNativeLand == TRUE){
+      censusTractsNative <- c("08083941100","08067940400", "08067940300", "08007940400")
+      features <- c()
+      for(i in seq_along(censusTractsNative)){
+        features <- c(features, grep(pattern =  censusTractsNative[i], x = bg_co$GEOID))
+      }
+      bg_co <- bg_co[-features, ]
+    }
+    
+    
 
     # read in geometry for census block groups
     geom <- sf::st_read("data/censusBlockGroup/coloradoCensusBlockGroups.geojson")%>%

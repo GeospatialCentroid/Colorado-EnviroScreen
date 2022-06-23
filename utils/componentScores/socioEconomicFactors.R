@@ -24,11 +24,10 @@ socioEconomicFactors <- function(geometry, ejscreen, acsData, processingLevel){
   dataframes <- list(d1,d2,d3)
   df <- joinDataFrames( dataframes)
   
-  
   # determine the average value across all features 
   df$socEco <- df %>% 
     select(contains("_pcntl"))%>%
-    rowMeans(na.rm = TRUE)
-
+    apply(MARGIN = 1, FUN = gm_mean)
+  
   return(df)
-  }
+}
